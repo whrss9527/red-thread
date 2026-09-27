@@ -32,3 +32,8 @@ See README.md (Chinese).
 - Read `NEXT_PUBLIC_*` values that the server needs at runtime through `src/lib/env.ts`
   (`process.env.NEXT_PUBLIC_X` is inlined at build time).
 - Forms using `useActionState` must return what the user typed on error: React 19 resets the form after an action.
+- Error boundaries (`error.tsx`) receive `retry()` in Next 16.3, not `reset()`.
+- The README's "Deploy with Vercel" URL appears twice (top and 部署 section) and is generated: `stores` provisions
+  Neon + a public Blob store, `env` asks for AUTH_SECRET / ADMIN_EMAIL / ADMIN_PASSWORD. Keep both copies in sync.
+- `src/lib/setup.ts` lists missing configuration (database, storage, secrets) on the login page; keep it free of
+  database access so it still works when the database is what's missing.

@@ -270,7 +270,7 @@ export async function deleteKeys(keys: (string | null | undefined)[]) {
 /** Shown on the admin dashboard so a misconfiguration is obvious. */
 export function storageWarning(): string | null {
   if (STORAGE === 'local' && env.VERCEL) {
-    return '当前部署在 Vercel 上却在使用本地磁盘存储，照片会在下次部署时丢失。请配置 Vercel Blob / R2 / S3 等存储。';
+    return '还没有连接照片存储：在 Vercel 项目的 Storage 里创建一个 Blob（访问方式选 Public），然后重新部署。也可以改用 R2 / S3 / OSS 等存储。';
   }
   return null;
 }

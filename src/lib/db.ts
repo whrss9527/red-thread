@@ -1,11 +1,12 @@
 import 'server-only';
 import fs from 'node:fs';
 import path from 'node:path';
+import { databaseUrl, onVercel } from './env';
 import { SCHEMA } from './schema';
 
 /**
  * Two drivers, one dialect:
- * - `POSTGRES_URL` set (Vercel / Neon / Supabase / your own server) → node-postgres
+ * - `POSTGRES_URL` or `DATABASE_URL` set (Vercel / Neon / Supabase / your own server) → node-postgres
  * - otherwise → PGlite, a real Postgres compiled to WASM that keeps its data
  *   in `.data/pglite`. Zero setup for local development and small self-hosts.
  *
@@ -18,7 +19,11 @@ type Driver = {
 const globalForDb = globalThis as unknown as { __redThreadDb?: Promise<Driver> };
 
 async function createDriver(): Promise<Driver> {
-  const url = process.env.POSTGRES_URL;
+  const url = databaseUrl();
+  if (!url && onVercel()) {
+    // PGlite needs a writable disk, which Vercel functions don't have.
+    throw new Error('No database: connect a Postgres store (e.g. Neon) in the Vercel Storage tab and redeploy.');
+  }
   if (url) {
     const { Pool } = await import('pg');
     const pool = new Pool({

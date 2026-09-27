@@ -11,6 +11,8 @@
 Next.js + Postgres + Vercel Blob / Cloudflare R2 / AWS S3 / MinIO，环境变量名也一样；
 另外加了阿里云 OSS / 腾讯云 COS 等 S3 兼容存储和 Docker 单机部署，方便国内访问。
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwhrss9527%2Fred-thread&project-name=our-album&repository-name=our-album&env=AUTH_SECRET%2CADMIN_EMAIL%2CADMIN_PASSWORD&envDescription=AUTH_SECRET%EF%BC%9A%E8%87%B3%E5%B0%91%2016%20%E4%BD%8D%E7%9A%84%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%EF%BC%8C%E7%94%A8%E6%9D%A5%E7%BB%99%E7%99%BB%E5%BD%95%E7%AD%BE%E5%90%8D%EF%BC%88%E5%8F%AF%E4%BB%A5%E7%94%A8%20generate-secret.vercel.app%2F32%20%E7%94%9F%E6%88%90%EF%BC%89%E3%80%82ADMIN_EMAIL%20%2F%20ADMIN_PASSWORD%EF%BC%9A%E7%99%BB%E5%BD%95%E5%90%8E%E5%8F%B0%E7%94%A8%E7%9A%84%E9%82%AE%E7%AE%B1%E5%92%8C%E5%AF%86%E7%A0%81%E3%80%82&envLink=https%3A%2F%2Fgithub.com%2Fwhrss9527%2Fred-thread%23%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%2C%7B%22type%22%3A%22blob%22%2C%22access%22%3A%22public%22%7D%5D)
+
 <img src="docs/screenshots/hero.jpg" alt="相册首页">
 
 ---
@@ -114,30 +116,60 @@ Next.js + Postgres + Vercel Blob / Cloudflare R2 / AWS S3 / MinIO，环境变量
 
 ---
 
-## 部署到 Vercel（和 exif-photo-blog 一样）
+## 部署到 Vercel
 
-1. **导入项目**：Vercel → Add New → Project → 选这个仓库，Framework 会自动识别为 Next.js，其余保持默认。
-2. **添加存储**（项目 → Storage）：
-   - 数据库：Marketplace 里的 **Neon**（Postgres），会自动注入 `POSTGRES_URL`。
-   - 照片：新建 **Blob Store，访问方式选 Public**，会自动注入 `BLOB_READ_WRITE_TOKEN`。
-3. **环境变量**（项目 → Settings → Environment Variables）：
-   - `AUTH_SECRET`：一串随机字符，比如 `openssl rand -base64 32` 的输出
-   - `ADMIN_EMAIL` / `ADMIN_PASSWORD`：你的账号
-   - `PARTNER_EMAIL` / `PARTNER_PASSWORD`：Ta 的账号（可选）
-   - `NEXT_PUBLIC_DOMAIN`：正式域名，例如 `love.example.com`
-4. **重新部署**，打开 `/admin`，登录。
-5. 在“我们 & 请柬”里填好名字和在一起的日子；可以先在“照片”页点“用示例数据看看效果”。
-   婚礼请柬默认是关着的，定好日子再打开。
-6. 开始上传照片、写回忆 ♡
+### 一键部署
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwhrss9527%2Fred-thread&project-name=our-album&repository-name=our-album&env=AUTH_SECRET%2CADMIN_EMAIL%2CADMIN_PASSWORD&envDescription=AUTH_SECRET%EF%BC%9A%E8%87%B3%E5%B0%91%2016%20%E4%BD%8D%E7%9A%84%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%EF%BC%8C%E7%94%A8%E6%9D%A5%E7%BB%99%E7%99%BB%E5%BD%95%E7%AD%BE%E5%90%8D%EF%BC%88%E5%8F%AF%E4%BB%A5%E7%94%A8%20generate-secret.vercel.app%2F32%20%E7%94%9F%E6%88%90%EF%BC%89%E3%80%82ADMIN_EMAIL%20%2F%20ADMIN_PASSWORD%EF%BC%9A%E7%99%BB%E5%BD%95%E5%90%8E%E5%8F%B0%E7%94%A8%E7%9A%84%E9%82%AE%E7%AE%B1%E5%92%8C%E5%AF%86%E7%A0%81%E3%80%82&envLink=https%3A%2F%2Fgithub.com%2Fwhrss9527%2Fred-thread%23%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%2C%7B%22type%22%3A%22blob%22%2C%22access%22%3A%22public%22%7D%5D)
+
+点这个按钮，Vercel 会一步步带你走完：
+
+1. **在你的 GitHub 里建一份自己的仓库**：名字默认是 `our-album`，可以改。建议勾选私有（Private），以后你们改了什么都只有自己看得到。
+2. **开好数据库和照片存储**：Neon（Postgres）和 Vercel Blob（已经设成 Public），连接信息会自动填进环境变量。国内访问的话，Neon 的地区建议选 **Singapore**。
+3. **填三个环境变量**：
+   - `AUTH_SECRET`：至少 16 位的随机字符，用来给登录签名。在 <https://generate-secret.vercel.app/32> 生成一串复制过来就行
+   - `ADMIN_EMAIL` / `ADMIN_PASSWORD`：你登录后台用的邮箱和密码
+4. 部署完成后打开 `你的网址/admin` 登录，在“我们 & 请柬”里填好名字和在一起的日子；可以先在“照片”页点“用示例数据看看效果”。婚礼请柬默认是关着的，定好日子再打开。
+
+之后还可以在 Vercel 项目的 Settings → Environment Variables 里加上 Ta 的账号（`PARTNER_EMAIL` / `PARTNER_PASSWORD`）和正式域名（`NEXT_PUBLIC_DOMAIN`），加完到 Deployments 里对最新一次部署点 ··· → Redeploy。
+
+> 如果部署后打不开，去登录页看看：缺数据库、照片存储还是密钥，那里会一条条写出来。
 
 数据表会在第一次访问时自动创建，不需要手动迁移。
+
+### 或者：直接导入仓库
+
+一键部署会复制出一份新的仓库。如果你想让网站跟着某个仓库自动更新（比如你 fork 了这个仓库，或者你就是它的主人），也可以手动导入：
+
+1. Vercel → Add New → Project → 选这个仓库，其余保持默认。
+2. 项目 → Storage：连接 **Neon**（Postgres）；新建 **Blob Store，访问方式选 Public**。
+3. 项目 → Settings → Environment Variables：填好[环境变量](#环境变量)里的三个必填项。
+4. Deployments → Redeploy。以后仓库每次更新都会自动部署。
 
 ### 国内访问
 
 - `*.vercel.app` 在国内基本打不开，**一定要绑定自己的域名**（Vercel → Settings → Domains）。
+- 把 Vercel 项目的函数地区（Settings → Functions → Function Region）设成 **Singapore**，和 Neon 的 Singapore 放在一起，页面会快很多。
 - 照片存储：Vercel Blob 在国内可以访问但不快；Cloudflare R2 请绑定自己的域名（`r2.dev` 在国内不可用）。
 - 想要最稳的国内访问：用 **Docker 部署在国内服务器上 + 阿里云 OSS / 腾讯云 COS**（见下文），国内服务器需要 ICP 备案。
 - 字体全部随网站一起分发，不依赖 Google Fonts。
+
+---
+
+## 环境变量
+
+| 变量 | 必填 | 说明 |
+|---|---|---|
+| `AUTH_SECRET` | 是 | 至少 16 位的随机字符，用来给登录签名。可以在 <https://generate-secret.vercel.app/32> 生成，或者运行 `openssl rand -base64 32` |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | 是 | 你的账号（“我们 & 请柬”里的第一个名字） |
+| `PARTNER_EMAIL` / `PARTNER_PASSWORD` | | Ta 的账号（第二个名字）。两个人各用各的，上传的照片会记下是谁传的 |
+| `NEXT_PUBLIC_DOMAIN` | | 正式域名，例如 `love.example.com`，用在分享链接和二维码里。不填的话，在 Vercel 上会用项目的生产域名 |
+| `NEXT_PUBLIC_TIMEZONE` | | 纪念日、倒计时按哪个时区算，默认 `Asia/Shanghai` |
+| `POSTGRES_URL` 或 `DATABASE_URL` | Vercel 上必填 | 连接 Neon 后自动填好。本地开发和 Docker 不填就用内置的 PGlite |
+| `DISABLE_POSTGRES_SSL` | | 自建的 Postgres 没开 SSL 时设为 `1` |
+| 照片存储相关 | Vercel 上必填 | Vercel Blob 连接后会自动填好 `BLOB_READ_WRITE_TOKEN`；其他存储见下一节 |
+
+完整的列表和注释见 [`.env.example`](.env.example)。
 
 ---
 
