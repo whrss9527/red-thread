@@ -16,7 +16,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       <header className="admin-head">
         <div>
           <h1>我们 & 请柬</h1>
-          <p className="muted small">这些内容会出现在公开相册、信封和婚礼请柬里。</p>
+          <p className="muted small">这些内容会出现在公开的相册里；婚礼请柬是相册里的一页，打开后才会出现入口。</p>
         </div>
       </header>
       {saved ? <p className="notice saved-note">保存好啦 ♡</p> : null}
@@ -40,12 +40,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <span>第一次见面（可选）</span>
             <input type="date" name="firstMet" defaultValue={s.firstMet} />
           </label>
-          <label className="field">
-            <span>火漆印上的字</span>
-            <input name="initials" defaultValue={s.initials} maxLength={8} />
-            <small>两个名字的首字母最好看，比如 C & M</small>
-          </label>
-          <label className="field">
+          <label className="field span-2">
             <span>网站标题（可选）</span>
             <input name="siteTitle" defaultValue={s.siteTitle} maxLength={40} placeholder={`${s.partnerA} & ${s.partnerB} 的朝朝暮暮`} />
           </label>
@@ -61,27 +56,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <span>结尾的那句话</span>
             <input name="closingLine" defaultValue={s.closingLine} maxLength={30} />
           </label>
-        </fieldset>
-
-        <fieldset className="card form-grid">
-          <legend>信封</legend>
-          <label className="check span-2">
-            <input type="checkbox" name="envelopeEnabled" defaultChecked={s.envelopeEnabled} />
-            客人打开相册时，先看到一封盖着火漆的信
-          </label>
-          <label className="field span-2">
-            <span>信封上的字（没有专属链接时显示）</span>
-            <input name="envelopeLine" defaultValue={s.envelopeLine} maxLength={30} />
-            <small>用“分享”页生成的专属链接打开时，信封上会写着“致 某某”。</small>
-          </label>
           <MusicField initial={s.music} previewUrl={musicPreview} />
         </fieldset>
 
         <fieldset className="card form-grid">
-          <legend>婚礼</legend>
+          <legend>婚礼请柬</legend>
           <label className="check span-2">
             <input type="checkbox" name="weddingEnabled" defaultChecked={s.weddingEnabled} />
-            在公开相册里放上婚礼请柬（还没定日子就先关着）
+            打开婚礼请柬：相册里出现请柬入口，/invitation 可以访问（还没定日子就先关着）
           </label>
           <label className="field">
             <span>日期</span>
@@ -116,13 +98,27 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <span>流程（一行一项，时间在前）</span>
             <textarea name="weddingSchedule" defaultValue={s.weddingSchedule} rows={4} maxLength={400} />
           </label>
+          <label className="check span-2">
+            <input type="checkbox" name="envelopeEnabled" defaultChecked={s.envelopeEnabled} />
+            打开请柬时，先看到一封盖着火漆的信（拆信的那一刻开始放音乐）
+          </label>
+          <label className="field">
+            <span>信封上的字（没有专属链接时显示）</span>
+            <input name="envelopeLine" defaultValue={s.envelopeLine} maxLength={30} />
+            <small>用“分享”页生成的专属链接打开时，信封上会写着“致 某某”。</small>
+          </label>
+          <label className="field">
+            <span>火漆印上的字</span>
+            <input name="initials" defaultValue={s.initials} maxLength={8} />
+            <small>两个名字的首字母最好看，比如 C & M</small>
+          </label>
         </fieldset>
 
         <fieldset className="card form-grid">
-          <legend>回执与祝福</legend>
+          <legend>回执与留言</legend>
           <label className="check span-2">
             <input type="checkbox" name="rsvpEnabled" defaultChecked={s.rsvpEnabled} />
-            请柬里可以回复是否出席、几位（开启婚礼请柬时生效）
+            请柬里可以回复是否出席、几位
           </label>
           <label className="field">
             <span>回复截止（可选）</span>
@@ -130,7 +126,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </label>
           <label className="check">
             <input type="checkbox" name="autoApproveNotes" defaultChecked={s.autoApproveNotes} />
-            祝福不用审核，直接贴到祝福墙上
+            留言不用审核，直接贴到相册的留言墙上
           </label>
         </fieldset>
 

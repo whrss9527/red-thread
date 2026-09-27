@@ -25,7 +25,7 @@ export default async function SharePage() {
         <div>
           <h1>分享</h1>
           <p className="muted small">
-            客人只能看到“公开”的照片和回忆。
+            客人只能看到“公开”的照片和回忆。请柬是相册里的一页，专属链接会直接打开请柬。
             {configuredOrigin() ? '' : '配置 NEXT_PUBLIC_DOMAIN 环境变量后，这里会使用你的正式域名。'}
           </p>
         </div>

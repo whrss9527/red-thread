@@ -4,7 +4,16 @@ import { useActionState, useState } from 'react';
 import { submitGuestNote, type GuestFormState } from '@/app/guest-actions';
 import { Icon } from './Icon';
 
-export function GuestbookForm({ rsvp, deadline }: { rsvp: boolean; deadline: string | null }) {
+export function GuestbookForm({
+  rsvp,
+  deadline,
+  wallBelow = true,
+}: {
+  rsvp: boolean;
+  deadline: string | null;
+  /** Whether the blessing wall is on this page (the album) or elsewhere (the invitation). */
+  wallBelow?: boolean;
+}) {
   const [state, action, pending] = useActionState<GuestFormState, FormData>(submitGuestNote, { status: 'idle' });
   const [attending, setAttending] = useState<string>('');
 
@@ -17,8 +26,10 @@ export function GuestbookForm({ rsvp, deadline }: { rsvp: boolean; deadline: str
         <p className="hand gb-thanks-title">收到啦{state.name ? `，${state.name}` : ''}！</p>
         <p className="muted">
           {state.approved
-            ? '你的祝福已经贴到下面的墙上了，谢谢你 ♡'
-            : '我们会一张一张认真读，然后把它贴到祝福墙上 ♡'}
+            ? wallBelow
+              ? '你的祝福已经贴到下面的墙上了，谢谢你 ♡'
+              : '你的祝福已经贴到相册的留言墙上了，谢谢你 ♡'
+            : '我们会一张一张认真读，然后把它贴到相册的留言墙上 ♡'}
         </p>
       </div>
     );

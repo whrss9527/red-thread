@@ -2,7 +2,7 @@ import 'server-only';
 import { query } from './db';
 import { insertMoment, type MomentInput } from './moments';
 import { insertPhoto } from './photos';
-import { getSettings, saveSettings } from './settings';
+import { DEFAULT_SETTINGS, readSettings, saveSettings } from './settings';
 import { addDays, today } from './dates';
 import type { Partner, Visibility } from './types';
 
@@ -202,7 +202,7 @@ export async function loadDemo() {
     '公园的草坪',
   );
 
-  const settings = await getSettings();
+  const settings = await readSettings();
   if (!settings.weddingDate) {
     const year = Number(now.slice(0, 4)) + 1;
     await saveSettings({
@@ -210,15 +210,29 @@ export async function loadDemo() {
       weddingDate: `${year}-05-20`,
       weddingTime: '11:58',
       weddingVenue: '湖畔的草坪婚礼',
-      weddingAddress: '杭州市西湖区北山街 1 号（示例地址）',
+      weddingAddress: `杭州市西湖区北山街 1 号${DEMO_MARK}`,
       dressCode: '浅色系，穿得舒服就好',
     });
   }
 }
 
+const DEMO_MARK = '（示例地址）';
+
 export async function clearDemo() {
   await query(`DELETE FROM photos WHERE id LIKE 'demo-%'`);
   await query(`DELETE FROM moments WHERE id LIKE 'demo-%'`);
+  // The sample wedding goes too, unless it has been edited into a real one.
+  const settings = await readSettings();
+  if (settings.weddingAddress.endsWith(DEMO_MARK)) {
+    await saveSettings({
+      weddingEnabled: false,
+      weddingDate: DEFAULT_SETTINGS.weddingDate,
+      weddingTime: DEFAULT_SETTINGS.weddingTime,
+      weddingVenue: DEFAULT_SETTINGS.weddingVenue,
+      weddingAddress: DEFAULT_SETTINGS.weddingAddress,
+      dressCode: DEFAULT_SETTINGS.dressCode,
+    });
+  }
 }
 
 export async function hasDemo() {

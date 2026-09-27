@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from 'react';
 import type { PhotoCard } from '@/lib/types';
-import { seeded } from '@/lib/ui';
+import { seeded, tiltFor } from '@/lib/ui';
 import { FadeImg, Polaroid, blurStyle } from './Polaroid';
 import { useLightbox } from './Lightbox';
 import { Icon } from './Icon';
@@ -66,6 +66,29 @@ export function Corkboard({ photos }: { photos: PhotoCard[] }) {
     <div className="cork">
       {photos.map((photo, i) => (
         <Polaroid key={photo.id} photo={photo} className="cork-card" onOpen={() => open(photos, i)} />
+      ))}
+    </div>
+  );
+}
+
+/** A whole chapter laid out as polaroids that keep each photo's own shape. */
+export function PolaroidWall({ photos }: { photos: PhotoCard[] }) {
+  const { open } = useLightbox();
+  return (
+    <div className="pwall">
+      {photos.map((photo, i) => (
+        <button
+          type="button"
+          key={photo.id}
+          className="polaroid pwall-item"
+          style={{ '--tilt': tiltFor(photo.id, 2.2) } as CSSProperties}
+          onClick={() => open(photos, i)}
+        >
+          <span className="pwall-img" style={{ ...blurStyle(photo), aspectRatio: `${photo.width} / ${photo.height}` }}>
+            <FadeImg src={photo.thumb} alt={photo.caption ?? ''} width={photo.width} height={photo.height} />
+          </span>
+          <span className="polaroid-cap">{photo.caption}</span>
+        </button>
       ))}
     </div>
   );

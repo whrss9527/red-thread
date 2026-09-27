@@ -255,12 +255,12 @@
 /* ==================================================================== hero */
 .hero {
   position: relative;
-  min-height: 100svh;
+  min-height: calc(100svh - 54px);
   display: grid;
   justify-items: center;
   align-content: center;
-  gap: clamp(14px, 2.6vh, 26px);
-  padding: 64px 16px 88px;
+  gap: clamp(10px, 2vh, 20px);
+  padding: clamp(28px, 5vh, 48px) 16px 84px;
   text-align: center;
   overflow: hidden;
   background:
@@ -283,7 +283,7 @@
   justify-content: center;
   gap: 0 0.3em;
   font-family: var(--serif-cn);
-  font-size: clamp(2.5rem, 10vw, 5.2rem);
+  font-size: clamp(2.4rem, 9vw, 4.6rem);
   font-weight: 600;
   letter-spacing: 0.08em;
   line-height: 1.15;
@@ -313,16 +313,14 @@
   animation: rise 1s 0.35s var(--ease) both;
 }
 
-.counter,
-.hero-date {
+.counter {
   display: grid;
   justify-items: center;
   align-content: center;
   gap: 2px;
 }
 
-.counter-label,
-.hero-date-label {
+.counter-label {
   font-size: 0.85rem;
   letter-spacing: 0.2em;
   color: var(--ink-2);
@@ -354,19 +352,7 @@
   letter-spacing: 0.06em;
 }
 
-.hero-date-line {
-  font-family: var(--serif);
-  font-size: clamp(1.9rem, 6.4vw, 2.6rem);
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  line-height: 1.1;
-}
 
-.hero-date-sub {
-  font-size: 0.9rem;
-  color: var(--ink-2);
-  letter-spacing: 0.1em;
-}
 
 .countdown {
   font-size: 0.85rem;
@@ -414,8 +400,8 @@
   --spread: 58%;
   position: relative;
   width: min(100%, 580px);
-  height: clamp(230px, 58vw, 350px);
-  margin: 6px 0 clamp(26px, 5vw, 44px);
+  height: clamp(220px, 56vw, 320px);
+  margin: 4px 0 clamp(24px, 4vw, 36px);
 }
 
 .fan-1 {
@@ -426,7 +412,7 @@
   position: absolute !important;
   left: 50%;
   bottom: 2%;
-  width: min(44%, 220px);
+  width: min(44%, 205px);
   transform: translate(calc(-50% + var(--i) * var(--spread)), var(--y)) rotate(var(--tilt));
   animation: fan-in 1.3s var(--ease) both;
 }
@@ -1345,24 +1331,6 @@
 }
 
 /* ============================================================== floaters */
-.us-pill {
-  position: fixed;
-  top: max(12px, env(safe-area-inset-top));
-  right: 12px;
-  z-index: 60;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--card) 88%, transparent);
-  color: var(--card-ink);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(6px);
-  font-size: 0.85rem;
-  text-decoration: none;
-}
 
 .music {
   position: fixed;
@@ -1510,4 +1478,336 @@
   font-family: var(--serif);
   letter-spacing: 0.25em;
   color: var(--ink-2);
+}
+
+/* ================================================================ nav */
+.pnav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 54px;
+  padding: 0 max(16px, env(safe-area-inset-left));
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+.pnav-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25em;
+  font-family: var(--serif-cn);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.pnav-brand .amp {
+  font-family: var(--script);
+  font-weight: 400;
+  color: var(--red);
+  font-size: 1.2em;
+}
+
+.pnav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pnav-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  color: var(--ink-2);
+  font-size: 0.92rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.pnav-links a:hover,
+.pnav-links a.active {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.pnav-links .pnav-invite {
+  margin-left: 4px;
+  color: var(--red);
+  border: 1px solid color-mix(in srgb, var(--red) 45%, transparent);
+}
+
+.pnav-links .pnav-invite:hover,
+.pnav-links .pnav-invite.active {
+  background: var(--red);
+  color: #fff;
+}
+
+@media (max-width: 520px) {
+  .pnav-links a {
+    padding: 6px 8px;
+  }
+  .hide-xs {
+    display: none !important;
+  }
+}
+
+/* ======================================================= invitation entry */
+.invite-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px 12px 14px;
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--card-ink);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  text-align: left;
+  rotate: -1.5deg;
+  transition: rotate 0.35s var(--ease), transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
+}
+
+.invite-entry:hover {
+  rotate: 0deg;
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+
+.invite-entry-env {
+  position: relative;
+  flex: none;
+  width: 58px;
+  height: 40px;
+  border-radius: 3px;
+  background: linear-gradient(160deg, #f5e9d8, #e7d3b8);
+  box-shadow: inset 0 0 0 1px rgba(120, 84, 50, 0.15);
+}
+
+.invite-entry-env::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #f8eee0, #eadac2);
+  clip-path: polygon(0 0, 100% 0, 50% 62%);
+  border-radius: 3px 3px 0 0;
+}
+
+.invite-entry-seal {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #da5760, #a4222e 60%, #7c1520);
+  color: #fbe1cf;
+  font-family: var(--serif-cn);
+  font-size: 10px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(110, 20, 28, 0.4);
+  transition: transform 0.35s var(--ease);
+}
+
+.invite-entry:hover .invite-entry-seal {
+  transform: translate(-50%, -50%) scale(1.15) rotate(-8deg);
+}
+
+.invite-entry-text {
+  display: grid;
+  gap: 1px;
+}
+
+.invite-entry-kicker {
+  font-family: var(--hand);
+  font-size: 1.35rem;
+  line-height: 1.1;
+  color: var(--red);
+}
+
+.invite-entry-date {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  color: #6d5c53;
+}
+
+.invite-entry-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.82rem;
+  color: #8c776a;
+}
+
+/* ============================================================ album bits */
+.chapter-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.chapter-title a:hover {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--red) 50%, transparent);
+  text-underline-offset: 6px;
+}
+
+.chapter-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  color: var(--red-deep);
+  font-size: 0.9rem;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--red) 35%, transparent);
+  padding-bottom: 1px;
+}
+
+.chapter-open:hover {
+  border-bottom-color: var(--red);
+}
+
+.album-cta {
+  display: flex;
+  justify-content: center;
+  padding: 8px 16px 0;
+}
+
+/* ============================================================ album pages */
+.album-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 16px 96px;
+}
+
+.album-page-head {
+  display: grid;
+  gap: 10px;
+  max-width: 720px;
+  margin: 8px 0 36px;
+}
+
+.album-page-head h1 {
+  font-family: var(--serif-cn);
+  font-size: clamp(1.8rem, 5.5vw, 2.6rem);
+  letter-spacing: 0.06em;
+}
+
+.pwall {
+  columns: 3 250px;
+  column-gap: 26px;
+}
+
+.pwall-item {
+  display: block;
+  break-inside: avoid;
+  margin: 0 0 30px;
+}
+
+.pwall-img {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--paper-3) center / cover no-repeat;
+}
+
+.pwall-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.pwall-img img.loaded {
+  opacity: 1;
+}
+
+.album-page-sealed {
+  margin-top: 8px;
+  justify-content: center;
+  display: flex;
+}
+
+.album-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 48px;
+  padding-top: 22px;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.album-pager-link {
+  display: grid;
+  gap: 2px;
+  max-width: 48%;
+  text-decoration: none;
+}
+
+.album-pager-link.next {
+  text-align: right;
+  margin-left: auto;
+}
+
+.album-pager-link small {
+  color: var(--ink-3);
+  font-family: var(--serif);
+  letter-spacing: 0.08em;
+}
+
+.album-pager-link span {
+  font-family: var(--serif-cn);
+  font-size: 1.1rem;
+}
+
+.album-pager-link:hover span {
+  color: var(--red-deep);
+}
+
+.year-group + .year-group {
+  margin-top: 44px;
+}
+
+.year-title {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--red);
+}
+
+.year-title small {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+/* ============================================================ invitation */
+.inv-top {
+  padding-top: clamp(32px, 6vw, 64px);
+}
+
+.inv-album .fan {
+  margin-left: auto;
+  margin-right: auto;
 }

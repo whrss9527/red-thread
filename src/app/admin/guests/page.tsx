@@ -40,7 +40,7 @@ export default async function GuestsPage() {
       <header className="admin-head">
         <div>
           <h1>回执与祝福</h1>
-          <p className="muted small">客人在公开相册里留下的话。祝福要点“贴上墙”才会公开，联系方式永远只有我们看得到。</p>
+          <p className="muted small">客人在相册里留下的话，和在请柬里填的回执。留言要点“贴上墙”才会公开，联系方式永远只有我们看得到。</p>
         </div>
         <a href="/admin/guests/export" className="btn btn-sm">
           <Icon name="download" size={15} /> 导出表格
@@ -62,7 +62,7 @@ export default async function GuestsPage() {
         </div>
         <div className="stat card">
           <b>{s.pending}</b>
-          <span>条祝福等着上墙</span>
+          <span>条留言等着上墙</span>
         </div>
       </div>
 

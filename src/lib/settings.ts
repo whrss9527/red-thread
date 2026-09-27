@@ -34,7 +34,8 @@ export const DEFAULT_SETTINGS: Settings = {
 
 const KEY = 'site';
 
-export const getSettings = cache(async (): Promise<Settings> => {
+/** Always reads the database; use it before writing. */
+export async function readSettings(): Promise<Settings> {
   const row = await queryOne<{ value: string }>('SELECT value FROM settings WHERE key = $1', [KEY]);
   if (!row) return { ...DEFAULT_SETTINGS };
   try {
@@ -42,10 +43,13 @@ export const getSettings = cache(async (): Promise<Settings> => {
   } catch {
     return { ...DEFAULT_SETTINGS };
   }
-});
+}
+
+/** Settings for rendering, read once per request. */
+export const getSettings = cache(readSettings);
 
 export async function saveSettings(patch: Partial<Settings>) {
-  const current = await getSettings();
+  const current = await readSettings();
   const next = { ...current, ...patch };
   await query(
     `INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, $3)

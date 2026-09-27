@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "红线 · 一本会讲故事的恋爱相册，也是婚礼请柬里的那一页。",
+  "description": "红线 · 一本会讲故事的恋爱相册。",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

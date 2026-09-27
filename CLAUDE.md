@@ -2,8 +2,11 @@
 
 # 红线 (red-thread)
 
-A couple's photo album that doubles as a wedding invitation. Next.js 16 (App Router, Turbopack, `src/proxy.ts`
-instead of middleware), React 19, hand-written CSS in `src/styles/` (no UI framework). See README.md (Chinese).
+A couple's photo album. The public side is the album (`/`, `/moments/[id]`, `/photos`); the wedding invitation
+(`/invitation`, envelope + card + RSVP) is one entry of it, shown only when `weddingEnabled` and a date are set.
+The private side is `/us` (browsing, everything) and `/admin` (managing). Next.js 16 (App Router, Turbopack,
+`src/proxy.ts` instead of middleware), React 19, hand-written CSS in `src/styles/` (no UI framework).
+See README.md (Chinese).
 
 ## Commands
 
@@ -19,7 +22,8 @@ instead of middleware), React 19, hand-written CSS in `src/styles/` (no UI frame
 - The browser only ever receives `PhotoCard` (`toCards`), never raw `Photo` rows: GPS, camera and the original
   file key stay on the server. Pass `{ forUs: true }` only on signed-in pages.
 - Guests see public photos only (`visibility = 'public'`), and public moments only. Private photos inside a
-  public moment are shown as a count (`sealed`), nothing else.
+  public moment are shown as a count (`sealed`), nothing else. Every public page reads through
+  `loadPublicAlbum()` (`src/lib/album.ts`), which is where that filtering lives.
 - Dates are stored as text (`YYYY-MM-DD`, wall-clock `YYYY-MM-DDTHH:mm:ss` for `taken_at`, ISO UTC for
   `created_at`) so PGlite and node-postgres return identical values. Calendar maths lives in `src/lib/dates.ts`.
 - Schema changes: append idempotent statements to `src/lib/schema.ts` (`ADD COLUMN IF NOT EXISTS`).
