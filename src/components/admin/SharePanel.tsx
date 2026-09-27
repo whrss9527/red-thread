@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode';
 import { Icon } from '@/components/Icon';
+import { CopyButton } from '@/components/admin/Small';
 
 function useQr(text: string, width = 480) {
   const [data, setData] = useState<string | null>(null);
@@ -19,33 +20,6 @@ function useQr(text: string, width = 480) {
     };
   }, [text, width]);
   return data;
-}
-
-function CopyButton({ text, label = '复制' }: { text: string; label?: string }) {
-  const [done, setDone] = useState(false);
-  return (
-    <button
-      type="button"
-      className="btn btn-sm"
-      onClick={async () => {
-        try {
-          await navigator.clipboard.writeText(text);
-        } catch {
-          const area = document.createElement('textarea');
-          area.value = text;
-          document.body.appendChild(area);
-          area.select();
-          document.execCommand('copy');
-          area.remove();
-        }
-        setDone(true);
-        window.setTimeout(() => setDone(false), 1600);
-      }}
-    >
-      <Icon name={done ? 'check' : 'link'} size={15} />
-      {done ? '已复制' : label}
-    </button>
-  );
 }
 
 function Qr({ text, name, size = 132 }: { text: string; name: string; size?: number }) {

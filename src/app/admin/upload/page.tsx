@@ -1,5 +1,7 @@
 import { requireSession } from '@/lib/auth';
 import { listMoments } from '@/lib/moments';
+import { STORAGE, STORAGE_LABEL } from '@/lib/storage';
+import { StorageCheck } from '@/components/admin/StorageCheck';
 import { Uploader } from '@/components/admin/Uploader';
 
 export const dynamic = 'force-dynamic';
@@ -17,6 +19,7 @@ export default async function UploadPage({ searchParams }: { searchParams: Promi
           </p>
         </div>
       </header>
+      <StorageCheck label={STORAGE_LABEL[STORAGE]} />
       <Uploader
         moments={moments.map((m) => ({ id: m.id, title: m.title }))}
         defaultMomentId={moments.some((m) => m.id === moment) ? moment! : null}

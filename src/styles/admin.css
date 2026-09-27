@@ -958,3 +958,89 @@ fieldset.field {
   border-radius: 14px;
   background: var(--paper);
 }
+
+/* ------------------------------------------------------- storage check */
+.storage-check {
+  margin-bottom: 18px;
+  padding: 12px 16px;
+}
+
+.storage-check-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.probe-list {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px dashed var(--line-strong);
+  list-style: none;
+}
+
+.probe-list li {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding-left: 30px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.probe-list li::before {
+  position: absolute;
+  top: 1px;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.probe-ok::before {
+  content: '✓';
+  background: var(--ok);
+}
+
+.probe-warn::before {
+  content: '!';
+  background: var(--gold);
+}
+
+.probe-fail::before {
+  content: '✕';
+  background: var(--red);
+}
+
+.probe-list span {
+  color: #6d5c53;
+  overflow-wrap: anywhere;
+}
+
+.probe-cors {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.probe-cors pre {
+  max-width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+  border-radius: 10px;
+  /* Cards stay paper-white in dark mode too. */
+  background: #f4ebdd;
+  color: var(--card-ink);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}

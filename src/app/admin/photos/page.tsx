@@ -54,7 +54,9 @@ export default async function AdminPhotos({ searchParams }: Props) {
       <header className="admin-head">
         <div>
           <h1>照片</h1>
-          <p className="muted small">存储：{STORAGE_LABEL[STORAGE]}</p>
+          <p className="muted small">
+            存储：{STORAGE_LABEL[STORAGE]} · <Link href="/admin/upload">检查</Link>
+          </p>
         </div>
         <Link href="/admin/upload" className="btn btn-red">
           <Icon name="upload" size={17} /> 上传照片

@@ -33,7 +33,16 @@ See README.md (Chinese).
   (`process.env.NEXT_PUBLIC_X` is inlined at build time).
 - Forms using `useActionState` must return what the user typed on error: React 19 resets the form after an action.
 - Error boundaries (`error.tsx`) receive `retry()` in Next 16.3, not `reset()`.
+- Photos live in object storage, Cloudflare R2 first (`src/lib/storage.ts` picks R2 → S3 → MinIO → S3-compatible →
+  Vercel Blob → local disk); the database only stores keys. Browsers upload straight to the bucket with presigned PUTs.
+  The S3 client sets `requestChecksumCalculation` / `responseChecksumValidation` to `WHEN_REQUIRED`: newer AWS SDKs
+  otherwise put CRC checksum parameters in presigned URLs, which R2, OSS, COS and older MinIO reject.
+- "检查照片存储" on `/admin/upload` (`checkStorage` / `removeProbe`, `StorageCheck.tsx`) lists the bucket, sends a CORS
+  preflight, then the browser uploads a test photo (`photos/check…-sm.jpg`) through the normal upload path, opens it
+  publicly and signed, and deletes it. Keep its messages naming the environment variable or setting to fix.
+  moto answers every preflight permissively, so test CORS failures through a proxy that refuses OPTIONS.
 - The README's "Deploy with Vercel" URL appears twice (top and 部署 section) and is generated: `stores` provisions
-  Neon + a public Blob store, `env` asks for AUTH_SECRET / ADMIN_EMAIL / ADMIN_PASSWORD. Keep both copies in sync.
+  Neon only, `env` asks for AUTH_SECRET / ADMIN_EMAIL / ADMIN_PASSWORD and the four R2 variables, `envLink` points
+  to `#准备-cloudflare-r2`. Keep both copies in sync.
 - `src/lib/setup.ts` lists missing configuration (database, storage, secrets) on the login page; keep it free of
   database access so it still works when the database is what's missing.

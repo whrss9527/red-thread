@@ -7,9 +7,9 @@ import { isDay } from '@/lib/dates';
 import { deleteNote, setNoteApproved } from '@/lib/guests';
 import { MEDIA_KEY, PHOTO_KEY, newId } from '@/lib/ids';
 import { deleteMoment, getMoment, insertMoment, isMomentKind, updateMoment, type MomentInput } from '@/lib/moments';
-import { deletePhotos, insertPhoto, updatePhotos, type PhotoPatch } from '@/lib/photos';
+import { deletePhotos, findPhotoByKey, insertPhoto, updatePhotos, type PhotoPatch } from '@/lib/photos';
 import { DEFAULT_SETTINGS, getSettings, saveSettings } from '@/lib/settings';
-import { deleteKeys } from '@/lib/storage';
+import { checkStorage, deleteKeys, removeProbe, type CheckLine, type StorageCheck } from '@/lib/storage';
 import { clearDemo, loadDemo } from '@/lib/demo';
 import type { Partner, Settings, Visibility } from '@/lib/types';
 
@@ -240,3 +240,20 @@ export async function clearDemoAction() {
   redirect('/admin/photos');
 }
 
+/* ----------------------------------------------------------------- storage */
+
+/** "检查照片存储" on /admin/upload, step one: the server's side of things. */
+export async function startStorageCheck(origin: string): Promise<StorageCheck> {
+  await assertSession();
+  // The page's own origin: the one the bucket's CORS rules have to allow.
+  if (!/^https?:\/\/[\w.:[\]-]{1,200}$/.test(origin)) throw new Error('Bad origin');
+  return checkStorage(origin);
+}
+
+/** Last step: delete the test photo the browser uploaded. */
+export async function finishStorageCheck(key: string): Promise<CheckLine> {
+  await assertSession();
+  // A test key never belongs to a real photo; refuse rather than trust the pattern alone.
+  if (await findPhotoByKey(key)) return { label: '删除测试照片', state: 'fail', detail: 'Invalid key' };
+  return removeProbe(key);
+}

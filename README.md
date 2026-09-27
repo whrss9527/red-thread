@@ -8,10 +8,16 @@
 等到结婚的时候，相册里多一个**婚礼请柬**的入口：客人拆开一封写着自己名字的信，看完请柬，还能翻进你们的相册。
 
 照片存储和部署方式沿用 [exif-photo-blog](https://github.com/sambecker/exif-photo-blog)：
-Next.js + Postgres + Vercel Blob / Cloudflare R2 / AWS S3 / MinIO，环境变量名也一样；
+Next.js + Postgres + 对象存储（Cloudflare R2 / AWS S3 / MinIO / Vercel Blob），环境变量名也一样；
 另外加了阿里云 OSS / 腾讯云 COS 等 S3 兼容存储和 Docker 单机部署，方便国内访问。
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwhrss9527%2Fred-thread&project-name=our-album&repository-name=our-album&env=AUTH_SECRET%2CADMIN_EMAIL%2CADMIN_PASSWORD&envDescription=AUTH_SECRET%EF%BC%9A%E8%87%B3%E5%B0%91%2016%20%E4%BD%8D%E7%9A%84%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%EF%BC%8C%E7%94%A8%E6%9D%A5%E7%BB%99%E7%99%BB%E5%BD%95%E7%AD%BE%E5%90%8D%EF%BC%88%E5%8F%AF%E4%BB%A5%E7%94%A8%20generate-secret.vercel.app%2F32%20%E7%94%9F%E6%88%90%EF%BC%89%E3%80%82ADMIN_EMAIL%20%2F%20ADMIN_PASSWORD%EF%BC%9A%E7%99%BB%E5%BD%95%E5%90%8E%E5%8F%B0%E7%94%A8%E7%9A%84%E9%82%AE%E7%AE%B1%E5%92%8C%E5%AF%86%E7%A0%81%E3%80%82&envLink=https%3A%2F%2Fgithub.com%2Fwhrss9527%2Fred-thread%23%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%2C%7B%22type%22%3A%22blob%22%2C%22access%22%3A%22public%22%7D%5D)
+**照片放在哪？** 放在你们自己的对象存储里，推荐 **Cloudflare R2**（有免费额度，下载流量不收费）。
+照片从浏览器直接传进存储桶，不经过服务器，更不会进 Git 仓库；数据库只存每张照片的文字信息（时间、地点、说明、在存储桶里的路径），
+GitHub 仓库里只有代码和示例插画。
+
+先花几分钟[准备好 R2](#准备-cloudflare-r2)，再点：
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwhrss9527%2Fred-thread&project-name=our-album&repository-name=our-album&env=AUTH_SECRET%2CADMIN_EMAIL%2CADMIN_PASSWORD%2CNEXT_PUBLIC_CLOUDFLARE_R2_ACCOUNT_ID%2CNEXT_PUBLIC_CLOUDFLARE_R2_BUCKET%2CCLOUDFLARE_R2_ACCESS_KEY%2CCLOUDFLARE_R2_SECRET_ACCESS_KEY&envDescription=AUTH_SECRET%EF%BC%9A%E8%87%B3%E5%B0%91%2016%20%E4%BD%8D%E7%9A%84%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%EF%BC%88%E5%8F%AF%E4%BB%A5%E7%94%A8%20generate-secret.vercel.app%2F32%20%E7%94%9F%E6%88%90%EF%BC%89%E3%80%82ADMIN_EMAIL%20%2F%20ADMIN_PASSWORD%EF%BC%9A%E7%99%BB%E5%BD%95%E5%90%8E%E5%8F%B0%E7%94%A8%E7%9A%84%E9%82%AE%E7%AE%B1%E5%92%8C%E5%AF%86%E7%A0%81%E3%80%82%E5%85%B6%E4%BD%99%E5%9B%9B%E4%B8%AA%E6%9D%A5%E8%87%AA%20Cloudflare%20R2%EF%BC%88%E7%85%A7%E7%89%87%E5%B0%B1%E5%AD%98%E5%9C%A8%E9%82%A3%E9%87%8C%EF%BC%89%EF%BC%9AAccount%20ID%E3%80%81%E5%AD%98%E5%82%A8%E6%A1%B6%E5%90%8D%E5%AD%97%E3%80%81API%20%E4%BB%A4%E7%89%8C%E7%9A%84%20Access%20Key%20ID%20%E5%92%8C%20Secret%20Access%20Key%E3%80%82&envLink=https%3A%2F%2Fgithub.com%2Fwhrss9527%2Fred-thread%23%E5%87%86%E5%A4%87-cloudflare-r2&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D)
 
 <img src="docs/screenshots/hero.jpg" alt="相册首页">
 
@@ -118,20 +124,61 @@ Next.js + Postgres + Vercel Blob / Cloudflare R2 / AWS S3 / MinIO，环境变量
 
 ## 部署到 Vercel
 
+分两步：先在 Cloudflare 建好放照片的存储桶，再点一键部署。数据库（Neon）会在部署时自动开好。
+
+### 准备 Cloudflare R2
+
+1. 打开 [Cloudflare 控制台](https://dash.cloudflare.com) → **R2 对象存储**。第一次用要先开通（需要绑定一张卡或 PayPal，免费额度内不扣费）。
+2. **创建存储桶**：名字比如 `our-album`，位置提示选 **亚太地区（Asia-Pacific）**，其余保持默认。
+3. **允许网页上传（CORS）**：存储桶 → **设置** → **CORS 策略** → 添加，把下面这段贴进去保存：
+
+   ```json
+   [
+     {
+       "AllowedOrigins": ["*"],
+       "AllowedMethods": ["GET", "PUT"],
+       "AllowedHeaders": ["content-type", "cache-control"],
+       "MaxAgeSeconds": 3600
+     }
+   ]
+   ```
+
+   照片是从浏览器直接传进存储桶的，所以要允许网页上传。来源写 `*` 也是安全的：每次上传都要带服务器签发的临时签名，没有签名谁也写不进来。
+4. **创建 API 令牌**：回到 R2 概览页 → **管理 API 令牌**（Manage API Tokens）→ 创建令牌。权限选 **对象读和写（Object Read & Write）**，
+   范围选“仅应用于指定存储桶”并选上 `our-album`。创建后记下 **访问密钥 ID（Access Key ID）** 和 **机密访问密钥（Secret Access Key）**，后者只显示这一次。
+5. **Account ID**：R2 概览页上就有，也是 S3 地址 `https://<Account ID>.r2.cloudflarestorage.com` 里的那一串。
+6. **绑定自己的域名（可选，推荐）**：存储桶 → **设置** → **自定义域** → 连接域名，比如 `photos.example.com`（这个域名要托管在 Cloudflare）。
+   公开照片会走这个域名和 Cloudflare 的 CDN，打开更快。不绑也能用，所有照片都会走临时签名链接。
+   `r2.dev` 那个开发用的地址有限速，在国内也打不开，别用它。
+
+部署时这样填：
+
+| Cloudflare 里的 | 环境变量 |
+|---|---|
+| Account ID | `NEXT_PUBLIC_CLOUDFLARE_R2_ACCOUNT_ID` |
+| 存储桶名字 | `NEXT_PUBLIC_CLOUDFLARE_R2_BUCKET` |
+| Access Key ID | `CLOUDFLARE_R2_ACCESS_KEY` |
+| Secret Access Key | `CLOUDFLARE_R2_SECRET_ACCESS_KEY` |
+| 自定义域名（第 6 步，可选） | `NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_DOMAIN`，部署好以后再加 |
+
 ### 一键部署
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwhrss9527%2Fred-thread&project-name=our-album&repository-name=our-album&env=AUTH_SECRET%2CADMIN_EMAIL%2CADMIN_PASSWORD&envDescription=AUTH_SECRET%EF%BC%9A%E8%87%B3%E5%B0%91%2016%20%E4%BD%8D%E7%9A%84%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%EF%BC%8C%E7%94%A8%E6%9D%A5%E7%BB%99%E7%99%BB%E5%BD%95%E7%AD%BE%E5%90%8D%EF%BC%88%E5%8F%AF%E4%BB%A5%E7%94%A8%20generate-secret.vercel.app%2F32%20%E7%94%9F%E6%88%90%EF%BC%89%E3%80%82ADMIN_EMAIL%20%2F%20ADMIN_PASSWORD%EF%BC%9A%E7%99%BB%E5%BD%95%E5%90%8E%E5%8F%B0%E7%94%A8%E7%9A%84%E9%82%AE%E7%AE%B1%E5%92%8C%E5%AF%86%E7%A0%81%E3%80%82&envLink=https%3A%2F%2Fgithub.com%2Fwhrss9527%2Fred-thread%23%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%2C%7B%22type%22%3A%22blob%22%2C%22access%22%3A%22public%22%7D%5D)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwhrss9527%2Fred-thread&project-name=our-album&repository-name=our-album&env=AUTH_SECRET%2CADMIN_EMAIL%2CADMIN_PASSWORD%2CNEXT_PUBLIC_CLOUDFLARE_R2_ACCOUNT_ID%2CNEXT_PUBLIC_CLOUDFLARE_R2_BUCKET%2CCLOUDFLARE_R2_ACCESS_KEY%2CCLOUDFLARE_R2_SECRET_ACCESS_KEY&envDescription=AUTH_SECRET%EF%BC%9A%E8%87%B3%E5%B0%91%2016%20%E4%BD%8D%E7%9A%84%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%EF%BC%88%E5%8F%AF%E4%BB%A5%E7%94%A8%20generate-secret.vercel.app%2F32%20%E7%94%9F%E6%88%90%EF%BC%89%E3%80%82ADMIN_EMAIL%20%2F%20ADMIN_PASSWORD%EF%BC%9A%E7%99%BB%E5%BD%95%E5%90%8E%E5%8F%B0%E7%94%A8%E7%9A%84%E9%82%AE%E7%AE%B1%E5%92%8C%E5%AF%86%E7%A0%81%E3%80%82%E5%85%B6%E4%BD%99%E5%9B%9B%E4%B8%AA%E6%9D%A5%E8%87%AA%20Cloudflare%20R2%EF%BC%88%E7%85%A7%E7%89%87%E5%B0%B1%E5%AD%98%E5%9C%A8%E9%82%A3%E9%87%8C%EF%BC%89%EF%BC%9AAccount%20ID%E3%80%81%E5%AD%98%E5%82%A8%E6%A1%B6%E5%90%8D%E5%AD%97%E3%80%81API%20%E4%BB%A4%E7%89%8C%E7%9A%84%20Access%20Key%20ID%20%E5%92%8C%20Secret%20Access%20Key%E3%80%82&envLink=https%3A%2F%2Fgithub.com%2Fwhrss9527%2Fred-thread%23%E5%87%86%E5%A4%87-cloudflare-r2&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D)
 
 点这个按钮，Vercel 会一步步带你走完：
 
 1. **在你的 GitHub 里建一份自己的仓库**：名字默认是 `our-album`，可以改。建议勾选私有（Private），以后你们改了什么都只有自己看得到。
-2. **开好数据库和照片存储**：Neon（Postgres）和 Vercel Blob（已经设成 Public），连接信息会自动填进环境变量。国内访问的话，Neon 的地区建议选 **Singapore**。
-3. **填三个环境变量**：
+2. **开好数据库**：Neon（Postgres），连接信息会自动填进环境变量。国内访问的话，Neon 的地区建议选 **Singapore**。
+3. **填七个环境变量**：
    - `AUTH_SECRET`：至少 16 位的随机字符，用来给登录签名。在 <https://generate-secret.vercel.app/32> 生成一串复制过来就行
    - `ADMIN_EMAIL` / `ADMIN_PASSWORD`：你登录后台用的邮箱和密码
-4. 部署完成后打开 `你的网址/admin` 登录，在“我们 & 请柬”里填好名字和在一起的日子；可以先在“照片”页点“用示例数据看看效果”。婚礼请柬默认是关着的，定好日子再打开。
+   - R2 的四个值：见上面的表
+4. 部署好以后打开 `你的网址/admin` 登录，先到“上传”页点 **检查照片存储**：它会从你的浏览器传一张测试照片、打开、再删掉，
+   哪一步不对会直接说该改哪里（比如 CORS 规则没加，它会把要贴的规则给你）。
+5. 在“我们 & 请柬”里填好名字和在一起的日子；可以先在“照片”页点“用示例数据看看效果”。婚礼请柬默认是关着的，定好日子再打开。
 
-之后还可以在 Vercel 项目的 Settings → Environment Variables 里加上 Ta 的账号（`PARTNER_EMAIL` / `PARTNER_PASSWORD`）和正式域名（`NEXT_PUBLIC_DOMAIN`），加完到 Deployments 里对最新一次部署点 ··· → Redeploy。
+之后还可以在 Vercel 项目的 Settings → Environment Variables 里加上 Ta 的账号（`PARTNER_EMAIL` / `PARTNER_PASSWORD`）、
+正式域名（`NEXT_PUBLIC_DOMAIN`）和 R2 的自定义域名（`NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_DOMAIN`），加完到 Deployments 里对最新一次部署点 ··· → Redeploy。
 
 > 如果部署后打不开，去登录页看看：缺数据库、照片存储还是密钥，那里会一条条写出来。
 
@@ -141,16 +188,18 @@ Next.js + Postgres + Vercel Blob / Cloudflare R2 / AWS S3 / MinIO，环境变量
 
 一键部署会复制出一份新的仓库。如果你想让网站跟着某个仓库自动更新（比如你 fork 了这个仓库，或者你就是它的主人），也可以手动导入：
 
-1. Vercel → Add New → Project → 选这个仓库，其余保持默认。
-2. 项目 → Storage：连接 **Neon**（Postgres）；新建 **Blob Store，访问方式选 Public**。
-3. 项目 → Settings → Environment Variables：填好[环境变量](#环境变量)里的三个必填项。
-4. Deployments → Redeploy。以后仓库每次更新都会自动部署。
+1. 照着上面[准备好 R2](#准备-cloudflare-r2)。
+2. Vercel → Add New → Project → 选这个仓库，其余保持默认。
+3. 项目 → Storage：连接 **Neon**（Postgres）。
+4. 项目 → Settings → Environment Variables：填好 `AUTH_SECRET`、`ADMIN_EMAIL`、`ADMIN_PASSWORD` 和 R2 的四个变量。
+5. Deployments → Redeploy。以后仓库每次更新都会自动部署。
 
 ### 国内访问
 
 - `*.vercel.app` 在国内基本打不开，**一定要绑定自己的域名**（Vercel → Settings → Domains）。
 - 把 Vercel 项目的函数地区（Settings → Functions → Function Region）设成 **Singapore**，和 Neon 的 Singapore 放在一起，页面会快很多。
-- 照片存储：Vercel Blob 在国内可以访问但不快；Cloudflare R2 请绑定自己的域名（`r2.dev` 在国内不可用）。
+- 照片：R2 请绑定自己的域名（`r2.dev` 在国内打不开）。上传和私密照片走的是 R2 的 S3 地址（`<Account ID>.r2.cloudflarestorage.com`），
+  你们的网络连不连得上它，“检查照片存储”会告诉你。
 - 想要最稳的国内访问：用 **Docker 部署在国内服务器上 + 阿里云 OSS / 腾讯云 COS**（见下文），国内服务器需要 ICP 备案。
 - 字体全部随网站一起分发，不依赖 Google Fonts。
 
@@ -167,7 +216,13 @@ Next.js + Postgres + Vercel Blob / Cloudflare R2 / AWS S3 / MinIO，环境变量
 | `NEXT_PUBLIC_TIMEZONE` | | 纪念日、倒计时按哪个时区算，默认 `Asia/Shanghai` |
 | `POSTGRES_URL` 或 `DATABASE_URL` | Vercel 上必填 | 连接 Neon 后自动填好。本地开发和 Docker 不填就用内置的 PGlite |
 | `DISABLE_POSTGRES_SSL` | | 自建的 Postgres 没开 SSL 时设为 `1` |
-| 照片存储相关 | Vercel 上必填 | Vercel Blob 连接后会自动填好 `BLOB_READ_WRITE_TOKEN`；其他存储见下一节 |
+| `NEXT_PUBLIC_CLOUDFLARE_R2_ACCOUNT_ID` | 用 R2 时必填 | Cloudflare 的 Account ID |
+| `NEXT_PUBLIC_CLOUDFLARE_R2_BUCKET` | 用 R2 时必填 | 存储桶名字 |
+| `CLOUDFLARE_R2_ACCESS_KEY` / `CLOUDFLARE_R2_SECRET_ACCESS_KEY` | 用 R2 时必填 | R2 API 令牌（对象读和写） |
+| `NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_DOMAIN` | | 存储桶绑定的域名，例如 `photos.example.com`。不填的话所有照片都走签名链接 |
+| `STORAGE_SIGNED_URLS` | | 设为 `1`：公开照片也走签名链接，存储桶可以完全不公开 |
+
+不用 R2 的话，换成下一节里任意一种存储的变量。
 
 完整的列表和注释见 [`.env.example`](.env.example)。
 
@@ -175,29 +230,21 @@ Next.js + Postgres + Vercel Blob / Cloudflare R2 / AWS S3 / MinIO，环境变量
 
 ## 其他照片存储
 
-只能同时启用一种；同时配置了多种时用 `NEXT_PUBLIC_STORAGE_PREFERENCE` 指定。
+除了 R2，也可以用下面这些，变量名和 exif-photo-blog 一样。只能同时启用一种：同时配置了多种时按
+R2 → AWS S3 → MinIO → S3 兼容 → Vercel Blob 的顺序取第一种，也可以用 `NEXT_PUBLIC_STORAGE_PREFERENCE` 指定。
 **最好在上传第一张照片前就选定**，之后再换需要自己迁移文件。
-
-照片由浏览器直接上传到存储桶，所以存储桶需要配置 **CORS**（把域名换成你的）：
-
-```json
-[
-  {
-    "AllowedOrigins": ["http://localhost:3000", "https://love.example.com"],
-    "AllowedMethods": ["GET", "PUT"],
-    "AllowedHeaders": ["*"]
-  }
-]
-```
 
 | 存储 | 需要的环境变量 |
 |---|---|
-| Vercel Blob | `BLOB_READ_WRITE_TOKEN` |
-| Cloudflare R2 | `NEXT_PUBLIC_CLOUDFLARE_R2_BUCKET` `NEXT_PUBLIC_CLOUDFLARE_R2_ACCOUNT_ID` `NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_DOMAIN` `CLOUDFLARE_R2_ACCESS_KEY` `CLOUDFLARE_R2_SECRET_ACCESS_KEY` |
-| AWS S3 | `NEXT_PUBLIC_AWS_S3_BUCKET` `NEXT_PUBLIC_AWS_S3_REGION` `AWS_S3_ACCESS_KEY` `AWS_S3_SECRET_ACCESS_KEY` |
+| Cloudflare R2 | 见[准备 Cloudflare R2](#准备-cloudflare-r2) |
+| AWS S3 | `NEXT_PUBLIC_AWS_S3_BUCKET` `NEXT_PUBLIC_AWS_S3_REGION` `AWS_S3_ACCESS_KEY` `AWS_S3_SECRET_ACCESS_KEY`。公开照片直接用存储桶地址读取，存储桶要允许公开读取；不想公开就设 `STORAGE_SIGNED_URLS=1` |
 | MinIO | `NEXT_PUBLIC_MINIO_BUCKET` `NEXT_PUBLIC_MINIO_DOMAIN` `NEXT_PUBLIC_MINIO_PORT` `NEXT_PUBLIC_MINIO_DISABLE_SSL` `MINIO_ACCESS_KEY` `MINIO_SECRET_ACCESS_KEY` |
 | 阿里云 OSS / 腾讯云 COS 等 | `S3_ENDPOINT` `S3_REGION` `S3_BUCKET` `S3_ACCESS_KEY` `S3_SECRET_ACCESS_KEY`，可选 `S3_PUBLIC_BASE_URL`（存储桶或 CDN 域名）、`S3_FORCE_PATH_STYLE=1` |
+| Vercel Blob | 在 Vercel 项目的 Storage 里新建 Blob（访问方式选 **Public**），会自动填好 `BLOB_READ_WRITE_TOKEN` |
 | 本地磁盘 | 什么都不配时默认使用，可用 `LOCAL_STORAGE_DIR` 改位置（**不要在 Vercel 上用**） |
+
+S3 / MinIO / OSS / COS 也要像 R2 一样允许网页上传（CORS）：来源 `*`，方法 `GET`、`PUT`，允许的请求头 `content-type`、`cache-control`
+（OSS / COS 在控制台的“跨域设置”里填）。Vercel Blob 不需要。
 
 例如阿里云 OSS（杭州）：
 
@@ -210,7 +257,7 @@ S3_SECRET_ACCESS_KEY=...
 S3_PUBLIC_BASE_URL=https://our-album.oss-cn-hangzhou.aliyuncs.com   # 或者你的 CDN 域名
 ```
 
-完整的变量说明见 [`.env.example`](.env.example)。
+完整的变量说明见 [`.env.example`](.env.example)。不管用哪一种，部署后都可以在后台上传页点“检查照片存储”确认。
 
 ---
 
@@ -224,7 +271,7 @@ docker compose up -d --build
 ```
 
 - 数据库和本地照片都在数据卷 `red-thread-data` 里，备份它就是备份整本相册。
-- 照片也可以放到 OSS / COS / R2：在 `.env` 里填对应变量即可。
+- 照片也可以放到 R2 / OSS / COS：在 `.env` 里填对应变量即可。
 - 想用独立的 Postgres：填 `POSTGRES_URL`（没开 SSL 的话加 `DISABLE_POSTGRES_SSL=1`）。
 - 前面放 Nginx / Caddy 做 HTTPS；上传原图时把反向代理的请求体上限调大（例如 Nginx `client_max_body_size 60m`）。
 - `NEXT_PUBLIC_TIMEZONE` 是构建参数，改了要重新 `--build`。
@@ -252,6 +299,12 @@ node scripts/demo-art.mjs   # 重新生成示例插画（public/demo）
 ---
 
 ## 常见问题
+
+**照片存在哪里？会进 GitHub 吗？** 不会。照片存在你们自己的对象存储（R2 等）里；数据库只存文字信息，GitHub 仓库里只有代码。
+所以就算仓库是公开的，也不会泄露任何一张照片。
+
+**上传失败？** 在上传页点“检查照片存储”：它会从你的浏览器传一张测试照片、打开、再删掉，哪一步不对就告诉你该改哪个设置。
+最常见的是存储桶还没加 CORS 规则。
 
 **iPhone 的 HEIC 照片能传吗？** 能。Safari 直接解码；Chrome / Firefox 会在需要时自动加载转换库。
 
@@ -286,7 +339,7 @@ src/
   components/           红线、拍立得、大图、信封、请柬、音乐、花瓣……
   lib/
     db.ts schema.ts     Postgres / PGlite
-    storage.ts          各种存储
+    storage.ts          各种存储，以及“检查照片存储”
     image-client.ts     浏览器里的 EXIF、HEIC、压缩
     photos.ts moments.ts guests.ts settings.ts
     dates.ts            纪念日计算（有单元测试）

@@ -152,8 +152,10 @@ function put(url: string, headers: Record<string, string>, body: Blob, onProgres
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) onProgress?.(event.loaded / event.total);
     };
-    xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`上传失败（${xhr.status}）`)));
-    xhr.onerror = () => reject(new Error('上传失败，请检查网络或存储桶的 CORS 设置'));
+    // `status` 0 means the browser never got an answer it may read: network, or CORS.
+    const fail = (message: string) => Object.assign(new Error(message), { status: xhr.status });
+    xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(fail(`上传失败（${xhr.status}）`)));
+    xhr.onerror = () => reject(fail('上传失败：网络不通，或者存储桶的 CORS 没有配好（上传页顶上可以“检查照片存储”）'));
     xhr.send(body);
   });
 }
