@@ -5,9 +5,9 @@ import type { S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 import { DEMO_KEY, newToken } from './ids';
 
 /**
- * Same storage providers and environment variables as exif-photo-blog
- * (Cloudflare R2, AWS S3, MinIO, Vercel Blob), plus any S3-compatible bucket
- * (阿里云 OSS, 腾讯云 COS …) and a local folder for development / Docker.
+ * Where photos live: Cloudflare R2, AWS S3, MinIO, Vercel Blob, any
+ * S3-compatible bucket (阿里云 OSS, 腾讯云 COS …) or, for development and
+ * Docker, a local folder.
  *
  * Files are uploaded straight from the browser, so the server never has to
  * carry photo bytes; the database only stores the storage *key*.

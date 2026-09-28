@@ -2,7 +2,7 @@ import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { getSession } from '@/lib/auth';
 import { isStorageKey } from '@/lib/ids';
 
-/** Token endpoint for Vercel Blob client uploads (same flow as exif-photo-blog). */
+/** Token endpoint for Vercel Blob client uploads. */
 export async function POST(request: Request) {
   const body = (await request.json()) as HandleUploadBody;
   try {

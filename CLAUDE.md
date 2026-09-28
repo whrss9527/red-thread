@@ -46,3 +46,5 @@ See README.md (Chinese).
   to `#准备-cloudflare-r2`. Keep both copies in sync.
 - `src/lib/setup.ts` lists missing configuration (database, storage, secrets) on the login page; keep it free of
   database access so it still works when the database is what's missing.
+- README, comments and UI text describe the album on its own terms: no "like / same as / based on <another project>"
+  comparisons, in Chinese or English.
