@@ -57,6 +57,14 @@ export function formatRange(start: string, end: string | null | undefined) {
   return `${formatDay(start)} – ${d2}日`;
 }
 
+/** `2020.10.02 – 10.05`: the compact form used on station signs. */
+export function formatDotRange(start: string, end: string | null | undefined) {
+  const from = formatDay(start, 'dot');
+  if (!end || end === start) return from;
+  const to = formatDay(end, 'dot');
+  return from.slice(0, 5) === to.slice(0, 5) ? `${from} – ${to.slice(5)}` : `${from} – ${to}`;
+}
+
 /** `2024-05-20T14:30:00` → `2024年5月20日 14:30` */
 export function formatTaken(takenAt: string | null | undefined) {
   if (!takenAt) return '';

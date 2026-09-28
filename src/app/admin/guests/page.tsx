@@ -68,7 +68,7 @@ export default async function GuestsPage() {
 
       {notes.length === 0 ? (
         <div className="empty card">
-          <p className="hand">还没有收到回信</p>
+          <p className="quip">还没有收到回信</p>
           <p>把专属链接发给朋友们吧（在“分享”里生成）。</p>
         </div>
       ) : (
@@ -85,7 +85,7 @@ export default async function GuestsPage() {
                 ) : null}
                 <span className="faint small">{time(note.createdAt)}</span>
               </div>
-              {note.message ? <p className="guest-message hand">{note.message}</p> : null}
+              {note.message ? <p className="guest-message quip">{note.message}</p> : null}
               {note.contact ? (
                 <p className="small muted">
                   <Icon name="lock" size={12} /> {note.contact}

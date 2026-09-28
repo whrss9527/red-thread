@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { drawMemory } from '@/app/us/actions';
 import type { PhotoCard } from '@/lib/types';
 import { useLightbox } from './Lightbox';
-import { FadeImg, blurStyle } from './Polaroid';
+import { FadeImg, blurStyle } from './Photo';
 import { Icon } from './Icon';
 
 export function DrawMemoryButton() {

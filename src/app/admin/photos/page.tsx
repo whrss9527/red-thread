@@ -82,7 +82,7 @@ export default async function AdminPhotos({ searchParams }: Props) {
         <PhotoManager photos={photos} moments={moments.map((m) => ({ id: m.id, title: m.title }))} />
       ) : (
         <div className="empty card">
-          <p className="hand">这里还空空的</p>
+          <p className="quip">这里还空空的</p>
           <p>上传第一张照片吧。也可以先用示例数据看看整本相册的样子。</p>
           <div className="row">
             <Link href="/admin/upload" className="btn btn-red">

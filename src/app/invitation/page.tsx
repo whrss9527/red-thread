@@ -5,12 +5,12 @@ import { loadPublicAlbum } from '@/lib/album';
 import { getSession } from '@/lib/auth';
 import { dayNumber, formatDay, isDay, today } from '@/lib/dates';
 import { urlFor } from '@/lib/storage';
-import { weddingDateParts, weddingReady } from '@/lib/wedding';
+import { trainCode, weddingDateParts, weddingReady } from '@/lib/wedding';
 import { Icon } from '@/components/Icon';
 import { LightboxProvider } from '@/components/Lightbox';
-import { HeroFan } from '@/components/PhotoGroups';
-import { MusicPlayer, Petals, RevealObserver } from '@/components/Ambient';
-import { Envelope } from '@/components/Envelope';
+import { WindowCarousel } from '@/components/PhotoGroups';
+import { MusicPlayer, RevealObserver } from '@/components/Ambient';
+import { Ticket } from '@/components/Ticket';
 import { GuestbookForm } from '@/components/Guestbook';
 import { InviteCard } from '@/components/InviteCard';
 import { PublicNav } from '@/components/PublicNav';
@@ -38,11 +38,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * /invitation — the wedding invitation, one entry of the album.
- * Personal links: /invitation?to=王小明 greets the guest by name.
+ * Personal links: /invitation?to=王小明 prints the guest's name on the ticket.
  */
 export default async function InvitationPage({ searchParams }: Props) {
   const [album, session, params] = await Promise.all([loadPublicAlbum(), getSession(), searchParams]);
-  const { settings: s, featured, chapters } = album;
+  const { settings: s, featured, chapters, loose } = album;
   // No wedding set up (or it was switched off afterwards): printed QR codes still land in the album.
   if (!weddingReady(s)) redirect('/');
 
@@ -51,47 +51,51 @@ export default async function InvitationPage({ searchParams }: Props) {
   const since = isDay(s.togetherSince) ? s.togetherSince : null;
   const music = s.music ? await urlFor(s.music, false) : null;
   const rsvp = s.rsvpEnabled;
+  // The window shows our favourites first, then whatever else is public.
+  const seen = new Set(featured.map((photo) => photo.id));
+  const scenery = [...featured, ...chapters.flatMap((c) => c.photos), ...loose]
+    .filter((photo, i) => i < featured.length || !seen.has(photo.id))
+    .slice(0, 10);
 
   return (
     <LightboxProvider>
       {s.envelopeEnabled ? (
-        <Envelope
+        <Ticket
           to={to}
           line={s.envelopeLine}
-          initials={s.initials}
           names={`${s.partnerA} & ${s.partnerB}`}
-          letterTop="Save the Date"
-          letterBottom={date.dot}
+          carrier={s.initials}
+          date={date.dot}
+          time={s.weddingTime}
+          venue={s.weddingVenue}
+          code={trainCode(s)}
         />
       ) : null}
-      <Petals />
       <RevealObserver />
       <PublicNav settings={s} wedding signedIn={Boolean(session)} active="invitation" />
 
       <main className="inv">
-        <section className="section inv-top">
-          <InviteCard settings={s} to={to} />
-        </section>
+        <InviteCard settings={s} to={to} />
 
         <section className="section inv-album">
           <div className="section-head" data-reveal>
-            <p className="section-kicker">Our Album</p>
-            <h2 className="section-title">我们的相册</h2>
+            <p className="kicker">Our album · 相册</p>
+            <h2 className="section-title">窗外的风景</h2>
             <p className="section-sub">
               {since
-                ? `从 ${formatDay(since, 'dot')} 到现在，我们一起走过了 ${dayNumber(since, today()).toLocaleString('zh-CN')} 天。`
+                ? `从 ${formatDay(since, 'dot')} 到现在，这条线开了 ${dayNumber(since, today()).toLocaleString('zh-CN')} 天。`
                 : '这些年，我们一起走过的路。'}
-              {chapters.length > 0 ? `相册里写着 ${chapters.length} 段回忆，想让你也看看。` : ''}
+              {chapters.length > 0 ? `沿途停了 ${chapters.length} 站，想让你也看看。` : ''}
             </p>
           </div>
-          {featured.length > 0 ? (
-            <div className="inv-fan" data-reveal>
-              <HeroFan photos={featured} />
+          {scenery.length > 0 ? (
+            <div className="inv-window" data-reveal>
+              <WindowCarousel photos={scenery} />
             </div>
           ) : null}
-          <div className="album-cta" data-reveal>
-            <Link href="/" className="btn btn-red">
-              <Icon name="book" size={18} /> 翻开我们的相册
+          <div className="inv-cta" data-reveal>
+            <Link href="/" className="btn btn-ink">
+              翻开我们的相册 <Icon name="right" size={16} />
             </Link>
           </div>
         </section>
@@ -99,11 +103,11 @@ export default async function InvitationPage({ searchParams }: Props) {
         {rsvp ? (
           <section className="section" id="rsvp">
             <div className="section-head" data-reveal>
-              <p className="section-kicker">RSVP</p>
-              <h2 className="section-title">回执</h2>
-              <p className="section-sub">告诉我们你能不能来，顺便留一句话给我们吧。</p>
+              <p className="kicker">RSVP · 回执</p>
+              <h2 className="section-title">来不来，说一声</h2>
+              <p className="section-sub">告诉我们你能不能来、来几位，顺便留一句话给我们。</p>
             </div>
-            <div className="gb-paper" data-reveal>
+            <div className="gb-card inv-rsvp" data-reveal>
               <GuestbookForm
                 rsvp
                 deadline={isDay(s.rsvpDeadline) ? formatDay(s.rsvpDeadline) : null}
@@ -114,13 +118,16 @@ export default async function InvitationPage({ searchParams }: Props) {
         ) : null}
       </main>
 
-      <footer className="closing">
-        <p className="closing-line">期待你的到来</p>
-        <p className="closing-names">
-          {s.partnerA} &amp; {s.partnerB}
-        </p>
-        <p className="closing-since">{date.dot}</p>
-        <p className="closing-fine">
+      <footer className="terminus">
+        <div className="terminus-sign">
+          <span className="terminus-dot" aria-hidden />
+          <p className="kicker">婚礼站</p>
+          <p className="terminus-line">到时候见。</p>
+          <p className="terminus-sub">
+            {s.partnerA} &amp; {s.partnerB} · {date.dot} · {s.weddingTime}
+          </p>
+        </div>
+        <p className="terminus-fine">
           <Link href="/">我们的相册</Link>
         </p>
       </footer>

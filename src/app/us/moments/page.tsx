@@ -4,9 +4,7 @@ import { MOMENT_KINDS, listMoments, momentPhotoCounts } from '@/lib/moments';
 import { firstPhotoPerMoment, getPhotos } from '@/lib/photos';
 import { urlFor } from '@/lib/storage';
 import { formatRange } from '@/lib/dates';
-import { tiltFor } from '@/lib/ui';
 import { Icon, KIND_ICON } from '@/components/Icon';
-import type { CSSProperties } from 'react';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,7 +36,7 @@ export default async function MomentsPage() {
       <div className="us-section-head page-head">
         <div>
           <h1>我们的回忆</h1>
-          <p className="muted">每一段旅程、每一次约会，都是红线上的一个结。</p>
+          <p className="muted">每一段旅程、每一次约会，都是线路上的一站。</p>
         </div>
         <Link href="/admin/moments/new" className="btn btn-red">
           <Icon name="plus" size={17} /> 新的回忆
@@ -46,7 +44,7 @@ export default async function MomentsPage() {
       </div>
       {items.length === 0 ? (
         <div className="empty">
-          <p className="hand">还没有写下任何一段回忆</p>
+          <p className="quip">还没有写下任何一段回忆</p>
           <Link href="/admin/moments/new" className="btn">
             写下第一段
           </Link>
@@ -59,7 +57,6 @@ export default async function MomentsPage() {
               href={`/us/moments/${moment.id}`}
               className="moment-card"
               data-reveal
-              style={{ '--tilt': tiltFor(moment.id, 1.6) } as CSSProperties}
             >
               <span className="moment-cover" style={{ backgroundColor: color ?? undefined }}>
                 {thumb ? <img src={thumb} alt="" loading="lazy" /> : <Icon name={KIND_ICON[moment.kind]} size={36} />}
@@ -70,10 +67,7 @@ export default async function MomentsPage() {
                 ) : null}
               </span>
               <span className="moment-body">
-                <span className="chapter-kind">
-                  <Icon name={KIND_ICON[moment.kind]} size={13} />
-                  {label[moment.kind]}
-                </span>
+                <span className="station-kind">{label[moment.kind]}</span>
                 <strong>{moment.title}</strong>
                 <span className="muted small">
                   {formatRange(moment.startsOn, moment.endsOn)}

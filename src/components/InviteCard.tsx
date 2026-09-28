@@ -1,78 +1,133 @@
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 import type { Settings } from '@/lib/types';
-import { mapLinks, weddingDateParts, weddingSchedule } from '@/lib/wedding';
+import { mapLinks, trainCode, weddingDateParts, weddingSchedule } from '@/lib/wedding';
 import { WeddingCountdown } from './Ambient';
 import { Icon } from './Icon';
 
-/** The formal invitation card: date, place, directions, schedule. */
-export function InviteCard({ settings: s, to }: { settings: Settings; to: string | null }) {
-  const date = weddingDateParts(s);
-  const schedule = weddingSchedule(s);
+/** Each character on its own split-flap tile; the tiles flip in when the board comes into view. */
+function Flaps({ text, from = 0 }: { text: string; from?: number }) {
   return (
-    <div className="invite" data-reveal>
-      <span className="xi" aria-hidden>
-        囍
-      </span>
-      <p className="invite-kicker">Wedding Invitation</p>
-      <p className="invite-to">{to ? `诚挚邀请 ${to}` : `${s.partnerA} & ${s.partnerB}`}</p>
-      <p className="invite-words">{s.weddingInvitation}</p>
-      <div className="invite-date">
-        <span>
-          {date.year} 年 {date.month} 月
-        </span>
-        <span className="invite-day">{String(date.day).padStart(2, '0')}</span>
-        <span>
-          {date.weekday} {s.weddingTime}
-        </span>
-      </div>
-      {s.weddingVenue || s.weddingAddress ? (
-        <div>
-          {s.weddingVenue ? <p className="invite-venue">{s.weddingVenue}</p> : null}
-          {s.weddingAddress ? <p className="invite-address">{s.weddingAddress}</p> : null}
-        </div>
-      ) : null}
-      <div className="invite-actions">
-        {mapLinks(s).map((link) => (
-          <a key={link.label} className="btn btn-sm" href={link.href} target="_blank" rel="noreferrer">
-            <Icon name="map" size={15} /> {link.label}
-          </a>
-        ))}
-        <a className="btn btn-sm" href="/wedding.ics" download>
-          <Icon name="calendar" size={15} /> 加入日历
-        </a>
-      </div>
-      {schedule.length > 0 ? (
-        <ol className="invite-schedule">
-          {schedule.map((item, i) => (
-            <li key={i}>
-              <time>{item.time}</time>
-              <span>{item.what}</span>
-            </li>
-          ))}
-        </ol>
-      ) : null}
-      {s.dressCode ? <p className="invite-dress">着装建议：{s.dressCode}</p> : null}
-      <WeddingCountdown date={s.weddingDate} time={s.weddingTime} />
-    </div>
+    <span className="flaps" aria-label={text}>
+      {[...text].map((char, i) =>
+        char === '.' || char === ':' ? (
+          <span key={i} className="flap-sep" aria-hidden>
+            {char}
+          </span>
+        ) : (
+          <span key={i} className="flap" style={{ '--i': from + i } as CSSProperties} aria-hidden>
+            {char}
+          </span>
+        ),
+      )}
+    </span>
   );
 }
 
-/** The way into the invitation from the album: a little sealed envelope. */
+/**
+ * The invitation: who we are and what we would like, then a departure board
+ * with the date, time and place, and the day's timetable.
+ */
+export function InviteCard({ settings: s, to }: { settings: Settings; to: string | null }) {
+  const date = weddingDateParts(s);
+  const schedule = weddingSchedule(s);
+  const monthDay = `${String(date.month).padStart(2, '0')}.${String(date.day).padStart(2, '0')}`;
+  return (
+    <article className="invite">
+      <header className="invite-head" data-reveal>
+        <p className="kicker">Wedding special · 婚礼专列</p>
+        {to ? (
+          <p className="invite-to">
+            诚挚邀请 <b>{to}</b>
+          </p>
+        ) : null}
+        <h1 className="invite-names">
+          <span className="name-a">{s.partnerA}</span>
+          <i>&amp;</i>
+          <span className="name-b">{s.partnerB}</span>
+        </h1>
+        <p className="invite-words">{s.weddingInvitation}</p>
+      </header>
+
+      <div className="board" data-reveal>
+        <div className="board-top">
+          <span>{trainCode(s)} 次 · 婚礼专列</span>
+          <span className="board-live">正在检票</span>
+        </div>
+        <div className="board-main">
+          <div className="board-date">
+            <Flaps text={monthDay} />
+            <span className="board-sub">
+              {date.year} 年 · {date.weekday}
+            </span>
+          </div>
+          <div className="board-time">
+            <small>发车</small>
+            <Flaps text={s.weddingTime} from={5} />
+          </div>
+        </div>
+        {s.weddingVenue || s.weddingAddress ? (
+          <div className="board-place">
+            <small>到达</small>
+            {s.weddingVenue ? <b>{s.weddingVenue}</b> : null}
+            {s.weddingAddress ? <span>{s.weddingAddress}</span> : null}
+          </div>
+        ) : null}
+        <div className="board-actions">
+          {mapLinks(s).map((link) => (
+            <a key={link.label} className="btn btn-sm" href={link.href} target="_blank" rel="noreferrer">
+              <Icon name="map" size={15} /> {link.label}
+            </a>
+          ))}
+          <a className="btn btn-sm" href="/wedding.ics" download>
+            <Icon name="calendar" size={15} /> 加入日历
+          </a>
+        </div>
+      </div>
+
+      {schedule.length > 0 ? (
+        <div className="timetable" data-reveal>
+          <p className="kicker">Timetable · 时刻表</p>
+          <ol>
+            {schedule.map((item, i) => (
+              <li key={i}>
+                <time>{item.time}</time>
+                <span>{item.what}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
+
+      <div className="invite-foot" data-reveal>
+        {s.dressCode ? (
+          <p className="invite-dress">
+            <small>着装建议</small>
+            {s.dressCode}
+          </p>
+        ) : null}
+        <WeddingCountdown date={s.weddingDate} time={s.weddingTime} />
+      </div>
+    </article>
+  );
+}
+
+/** The way into the invitation from the album: a ticket stub for the next stop. */
 export function InviteEntry({ settings: s }: { settings: Settings }) {
   const date = weddingDateParts(s);
   return (
-    <Link href="/invitation" className="invite-entry">
-      <span className="invite-entry-env" aria-hidden>
-        <span className="invite-entry-seal">囍</span>
+    <Link href="/invitation" className="stub">
+      <span className="stub-main">
+        <span className="stub-kicker">下一站 · 婚礼</span>
+        <span className="stub-date">{date.dot}</span>
+        <span className="stub-sub">
+          {date.weekday} {s.weddingTime}
+          {s.weddingVenue ? ` · ${s.weddingVenue}` : ''}
+        </span>
       </span>
-      <span className="invite-entry-text">
-        <span className="invite-entry-kicker">我们要结婚啦</span>
-        <span className="invite-entry-date">
-          {date.dot} · {date.weekday}
-        </span>
-        <span className="invite-entry-cta">
-          打开请柬 <Icon name="right" size={14} />
-        </span>
+      <span className="stub-tear">
+        请柬
+        <Icon name="right" size={16} />
       </span>
     </Link>
   );

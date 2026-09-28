@@ -15,7 +15,7 @@ export interface Photo {
   id: string;
   /** Storage key of the large (display) rendition. */
   lgKey: string;
-  /** Storage key of the small (grid / polaroid) rendition. */
+  /** Storage key of the small (grid) rendition. */
   smKey: string;
   /** Storage key of the untouched original, when the uploader kept it. */
   origKey: string | null;
@@ -25,9 +25,9 @@ export interface Photo {
   blurData: string | null;
   /** Average colour, used for tape and placeholders. */
   color: string | null;
-  /** Written on the front of the polaroid. */
+  /** Shown under the photo. */
   caption: string | null;
-  /** Written on the back of the polaroid. */
+  /** Written on the back: the lightbox turns the photo over to show it. */
   note: string | null;
   /** Wall-clock time the photo was taken, `YYYY-MM-DDTHH:mm:ss`. */
   takenAt: string | null;
@@ -38,7 +38,7 @@ export interface Photo {
   author: Partner | null;
   momentId: string | null;
   visibility: Visibility;
-  /** Shown in the hero, the envelope and the embed slideshow. */
+  /** Shown in the hero, the invitation's window and the embed. */
   featured: boolean;
   /** Our own little heart, only visible to the two of us. */
   favorite: boolean;
@@ -99,9 +99,9 @@ export interface Settings {
   siteTitle: string;
   partnerA: string;
   partnerB: string;
-  /** Pressed into the wax seal, e.g. "J & M". */
+  /** Printed on the invitation ticket, e.g. "J & M". */
   initials: string;
-  /** `YYYY-MM-DD` — the day the red thread was tied. */
+  /** `YYYY-MM-DD` — the day our two lines merged into one. */
   togetherSince: string;
   /** `YYYY-MM-DD` — optional, the very first meeting. */
   firstMet: string;

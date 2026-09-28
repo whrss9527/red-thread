@@ -13,7 +13,7 @@ function useQr(text: string, width = 480) {
       width,
       margin: 1,
       errorCorrectionLevel: 'M',
-      color: { dark: '#3a2e2aff', light: '#ffffffff' },
+      color: { dark: '#171614ff', light: '#ffffffff' },
     }).then((url) => alive && setData(url), () => alive && setData(null));
     return () => {
       alive = false;
@@ -80,7 +80,7 @@ export function SharePanel({ base, hasWedding }: { base: string; hasWedding: boo
                     <Icon name="eye" size={15} /> 打开看看
                   </a>
                 </div>
-                <p className="small muted">请柬是相册里的一页：客人拆开信封看到请柬，也能从这里翻进相册。二维码可以印在纸质请柬上。</p>
+                <p className="small muted">请柬是相册里的一页：客人检过票就能看到请柬，也能从这里翻进相册。二维码可以印在纸质请柬上。</p>
               </div>
             </div>
           </section>
@@ -88,7 +88,7 @@ export function SharePanel({ base, hasWedding }: { base: string; hasWedding: boo
           <section className="card share-block">
             <h2>给每位客人一封专属的请柬</h2>
             <p className="small muted">
-              每行一个名字（也可以用逗号隔开）。客人打开自己的链接，信封上会写着“致 某某”，请柬上写着“诚挚邀请 某某”。
+              每行一个名字（也可以用逗号隔开）。客人打开自己的链接，车票上印着他的名字，请柬上写着“诚挚邀请 某某”。
             </p>
             <textarea
               className="input"
@@ -133,7 +133,7 @@ export function SharePanel({ base, hasWedding }: { base: string; hasWedding: boo
       <section className="card share-block">
         <h2>把相册放进别的网页</h2>
         <p className="small muted">
-          电子请柬（或者你的博客）支持嵌入网页的话，可以用这段代码放一叠会自己翻动的拍立得，点一下就进相册；不支持嵌入的，放上面的链接或二维码就好。
+          电子请柬（或者你的博客）支持嵌入网页的话，可以用这段代码放一扇会自己换风景的车窗，点一下就进相册；不支持嵌入的，放上面的链接或二维码就好。
         </p>
         <label className="check">
           <input type="checkbox" checked={transparent} onChange={(e) => setTransparent(e.target.checked)} /> 透明背景

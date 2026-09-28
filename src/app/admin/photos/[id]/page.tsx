@@ -27,16 +27,14 @@ export default async function EditPhoto({ params }: { params: Promise<{ id: stri
   return (
     <div>
       <Link href="/admin/photos" className="muted back-link">
-        ← 所有照片
+        <Icon name="left" size={16} /> 所有照片
       </Link>
       <div className="edit-photo">
         <figure className="edit-preview">
-          <span className="polaroid" style={{ '--tilt': '-1.5deg' } as React.CSSProperties}>
-            <span className="edit-img" style={{ aspectRatio: `${photo.width} / ${photo.height}`, backgroundColor: photo.color ?? undefined }}>
-              <img src={src} alt={photo.caption ?? ''} />
-            </span>
-            <span className="polaroid-cap">{photo.caption}</span>
+          <span className="edit-img" style={{ aspectRatio: `${photo.width} / ${photo.height}`, backgroundColor: photo.color ?? undefined }}>
+            <img src={src} alt={photo.caption ?? ''} />
           </span>
+          {photo.caption ? <p className="edit-cap quip">{photo.caption}</p> : null}
           <figcaption className="edit-facts">
             <span>
               {photo.width} × {photo.height}
@@ -63,7 +61,7 @@ export default async function EditPhoto({ params }: { params: Promise<{ id: stri
           <input type="hidden" name="back" value="/admin/photos" />
           <label className="field span-2">
             <span>写在正面的话</span>
-            <input name="caption" defaultValue={photo.caption ?? ''} maxLength={60} placeholder="一句话，会用手写体写在拍立得下方" />
+            <input name="caption" defaultValue={photo.caption ?? ''} maxLength={60} placeholder="一句话，写在照片下面" />
           </label>
           <label className="field span-2">
             <span>写在背面的话</span>
@@ -110,7 +108,7 @@ export default async function EditPhoto({ params }: { params: Promise<{ id: stri
           <div className="span-2 radio-row">
             <label className="check">
               <input type="checkbox" name="featured" defaultChecked={photo.featured} />
-              <Icon name="star" size={15} /> 精选：放在首页、信封和请柬里（需要公开）
+              <Icon name="star" size={15} /> 精选：放在首页、请柬的车窗和嵌入页里（需要公开）
             </label>
             <label className="check">
               <input type="checkbox" name="favorite" defaultChecked={photo.favorite} />

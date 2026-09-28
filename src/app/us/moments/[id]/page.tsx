@@ -4,8 +4,8 @@ import { requireSession } from '@/lib/auth';
 import { MOMENT_KINDS, getMoment } from '@/lib/moments';
 import { listPhotos, toCards } from '@/lib/photos';
 import { getSettings } from '@/lib/settings';
-import { formatRange } from '@/lib/dates';
-import { Icon, KIND_ICON } from '@/components/Icon';
+import { formatDotRange } from '@/lib/dates';
+import { Icon } from '@/components/Icon';
 import { PhotoMasonry } from '@/components/PhotoGroups';
 
 export const dynamic = 'force-dynamic';
@@ -22,32 +22,17 @@ export default async function MomentPage({ params }: { params: Promise<{ id: str
   return (
     <article className="moment-page">
       <Link href="/us/moments" className="muted back-link">
-        ← 所有回忆
+        <Icon name="left" size={16} /> 所有回忆
       </Link>
       <header className="moment-head">
-        <span className="chapter-kind">
-          <Icon name={KIND_ICON[moment.kind]} size={14} />
-          {kind}
-          {moment.visibility === 'private' ? ' · 只给彼此' : ' · 公开'}
-        </span>
-        <h1>{moment.title}</h1>
-        <p className="chapter-meta">
-          <span>
-            <Icon name="calendar" size={14} />
-            {formatRange(moment.startsOn, moment.endsOn)}
-          </span>
-          {moment.place ? (
-            <span>
-              <Icon name="pin" size={14} />
-              {moment.place}
-            </span>
-          ) : null}
-          <span>
-            <Icon name="image" size={14} />
-            {rows.length} 张
-          </span>
+        <p className="kicker">
+          {kind} · {moment.visibility === 'private' ? '只给彼此' : '公开'}
         </p>
-        {moment.story ? <p className="chapter-story">{moment.story}</p> : null}
+        <h1>{moment.title}</h1>
+        <p className="moment-meta">
+          {[formatDotRange(moment.startsOn, moment.endsOn), moment.place, `${rows.length} 张`].filter(Boolean).join(' · ')}
+        </p>
+        {moment.story ? <p className="moment-story">{moment.story}</p> : null}
         <div className="moment-actions">
           <Link href={`/admin/moments/${moment.id}`} className="btn btn-sm">
             <Icon name="edit" size={15} /> 编辑这段回忆
@@ -61,7 +46,7 @@ export default async function MomentPage({ params }: { params: Promise<{ id: str
         <PhotoMasonry photos={cards} />
       ) : (
         <div className="empty">
-          <p className="hand">这段回忆还没有照片</p>
+          <p className="quip">这段回忆还没有照片</p>
         </div>
       )}
     </article>

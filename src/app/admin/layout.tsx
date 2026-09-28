@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { requireSession } from '@/lib/auth';
 import { storageWarning } from '@/lib/storage';
 import { Icon } from '@/components/Icon';
+import { LineMark } from '@/components/Line';
 import { NavLinks } from '@/components/NavLinks';
 
 export const metadata: Metadata = { title: '整理相册', robots: { index: false, follow: false } };
@@ -14,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="admin">
       <aside className="admin-side">
         <Link href="/us" className="us-brand">
-          <Icon name="heart" size={18} filled />
+          <LineMark height={18} />
           整理相册
         </Link>
         <NavLinks

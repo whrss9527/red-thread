@@ -42,7 +42,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </label>
           <label className="field span-2">
             <span>网站标题（可选）</span>
-            <input name="siteTitle" defaultValue={s.siteTitle} maxLength={40} placeholder={`${s.partnerA} & ${s.partnerB} 的朝朝暮暮`} />
+            <input name="siteTitle" defaultValue={s.siteTitle} maxLength={40} placeholder={`${s.partnerA} & ${s.partnerB} 的红线`} />
           </label>
           <label className="field span-2">
             <span>一句话</span>
@@ -100,15 +100,15 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </label>
           <label className="check span-2">
             <input type="checkbox" name="envelopeEnabled" defaultChecked={s.envelopeEnabled} />
-            打开请柬时，先看到一封盖着火漆的信（拆信的那一刻开始放音乐）
+            打开请柬时，先递上一张写着客人名字的车票（检票的那一刻开始放音乐）
           </label>
           <label className="field">
-            <span>信封上的字（没有专属链接时显示）</span>
+            <span>车票上方的一句话（没有专属链接时显示）</span>
             <input name="envelopeLine" defaultValue={s.envelopeLine} maxLength={30} />
-            <small>用“分享”页生成的专属链接打开时，信封上会写着“致 某某”。</small>
+            <small>用“分享”页生成的专属链接打开时，会写着“某某，这是你的车票”，乘客一栏也是客人的名字。</small>
           </label>
           <label className="field">
-            <span>火漆印上的字</span>
+            <span>车票上的承运人</span>
             <input name="initials" defaultValue={s.initials} maxLength={8} />
             <small>两个名字的首字母最好看，比如 C & M</small>
           </label>

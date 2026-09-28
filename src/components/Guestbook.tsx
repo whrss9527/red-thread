@@ -21,9 +21,9 @@ export function GuestbookForm({
     return (
       <div className="gb-thanks" role="status">
         <span className="gb-plane" aria-hidden>
-          <Icon name="envelope" size={40} />
+          <Icon name="check" size={40} />
         </span>
-        <p className="hand gb-thanks-title">收到啦{state.name ? `，${state.name}` : ''}！</p>
+        <p className="quip gb-thanks-title">收到啦{state.name ? `，${state.name}` : ''}！</p>
         <p className="muted">
           {state.approved
             ? wallBelow

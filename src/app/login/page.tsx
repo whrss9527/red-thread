@@ -5,7 +5,7 @@ import { DEV_ACCOUNT, getSession, usingDevAccount } from '@/lib/auth';
 import { setupProblems } from '@/lib/setup';
 import { LoginForm } from './LoginForm';
 
-export const metadata: Metadata = { title: '我们的入口', robots: { index: false } };
+export const metadata: Metadata = { title: '员工通道', robots: { index: false } };
 
 type Props = { searchParams: Promise<{ next?: string }> };
 
@@ -20,9 +20,9 @@ export default async function LoginPage({ searchParams }: Props) {
   return (
     <main className="login">
       <div className="login-card">
-        <p className="section-kicker">Welcome home</p>
-        <h1 className="login-title">只属于我们的入口</h1>
-        <p className="muted">这里有公开相册之外，那些只给彼此看的照片。</p>
+        <p className="kicker">Staff only · 员工通道</p>
+        <h1 className="login-title">乘务员请刷卡</h1>
+        <p className="muted">这条线只有两位乘务员。公开相册之外的照片、日历和整理工具，都在里面。</p>
         {problems.length > 0 ? (
           <div className="notice notice-red setup-list">
             <p>网站还差最后几步：</p>
@@ -36,7 +36,7 @@ export default async function LoginPage({ searchParams }: Props) {
         <LoginForm next={target} hint={hint} />
       </div>
       <Link href="/" className="login-back">
-        ← 回到公开的相册
+        ← 回到公开的线路图
       </Link>
     </main>
   );

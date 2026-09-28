@@ -46,7 +46,7 @@ export function MusicField({ initial, previewUrl }: { initial: string; previewUr
         ) : null}
       </div>
       {preview ? <audio src={preview} controls preload="none" className="music-preview" /> : null}
-      <small>{status ?? '相册和请柬的右下角都有播放按钮；请柬里拆开信封的那一刻会自动开始播放。选一首你们的歌吧。'}</small>
+      <small>{status ?? '相册和请柬的右下角都有播放按钮；请柬里检票的那一刻会自动开始播放。选一首你们的歌吧。'}</small>
     </div>
   );
 }

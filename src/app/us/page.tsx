@@ -14,7 +14,7 @@ import {
   yearsAgoLabel,
 } from '@/lib/dates';
 import { Icon } from '@/components/Icon';
-import { PhotoMasonry, PolaroidStrip } from '@/components/PhotoGroups';
+import { PhotoMasonry, PhotoStrip } from '@/components/PhotoGroups';
 import { DrawMemoryButton } from '@/components/UsBits';
 import type { Photo } from '@/lib/types';
 
@@ -32,11 +32,11 @@ function greeting() {
 }
 
 const SWEET = [
-  '今天也要记得牵手。',
+  '今日运营提示：出门记得牵手。',
   '{other}说，今天的你也很好看。',
-  '有空的话，一起去拍张照片吧。',
-  '今天的晚饭，要不要一起做？',
-  '记得抱一抱{other}。',
+  '天气不错，适合拍一张明年会想翻出来的照片。',
+  '今天的晚饭要不要一起做？厨房事故另算。',
+  '温馨提示：{other}需要一个拥抱，请尽快处理。',
   '把今天也过成值得放进相册的一天吧。',
   '偷偷告诉你：{other}又在翻你们的旧照片了。',
 ];
@@ -84,7 +84,7 @@ export default async function UsHome() {
     <div className="us-home">
       <section className="welcome" data-reveal>
         <div className="welcome-text">
-          <p className="welcome-hi hand">
+          <p className="welcome-hi quip">
             {greeting()}，{me}
           </p>
           {day ? (
@@ -131,16 +131,16 @@ export default async function UsHome() {
         {years.length > 0 ? (
           years.map(([y, photos]) => (
             <div key={y} className="otd">
-              <p className="otd-label hand">
+              <p className="otd-label quip">
                 {nearby ? `${year - y} 年前的这几天` : yearsAgoLabel(y, year)}
                 <span className="faint"> · {y}</span>
               </p>
-              <PolaroidStrip photos={pick(photos)} />
+              <PhotoStrip photos={pick(photos)} />
             </div>
           ))
         ) : (
           <div className="empty">
-            <p className="hand">往年的今天还没有照片</p>
+            <p className="quip">往年的今天还没有照片</p>
             <p>那就从今天开始，拍一张明年会想翻出来看的照片吧。</p>
           </div>
         )}
@@ -154,7 +154,7 @@ export default async function UsHome() {
               全部 →
             </Link>
           </div>
-          <PolaroidStrip photos={pick(favoriteRows)} />
+          <PhotoStrip photos={pick(favoriteRows)} />
         </section>
       ) : null}
 
@@ -169,7 +169,7 @@ export default async function UsHome() {
           <PhotoMasonry photos={pick(recentRows)} />
         ) : (
           <div className="empty">
-            <p className="hand">相册还是空的</p>
+            <p className="quip">相册还是空的</p>
             <Link href="/admin/upload" className="btn btn-red">
               <Icon name="upload" size={17} /> 放进第一张照片
             </Link>

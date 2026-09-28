@@ -203,7 +203,7 @@ export function Uploader({
         }}
       >
         <Icon name="upload" size={34} />
-        <p className="hand dropzone-title">把回忆拖到这里</p>
+        <p className="quip dropzone-title">把回忆拖到这里</p>
         <p className="muted">或者点一下选择照片 · 支持 JPG / PNG / HEIC · 可以一次选很多张</p>
         <input
           ref={input}

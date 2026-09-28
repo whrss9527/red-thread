@@ -49,10 +49,13 @@ export function weddingDateParts(s: Settings) {
     month: m,
     day: d,
     weekday: weekday(s.weddingDate),
-    dot: formatDay(s.weddingDate, 'dot').replace(/\./g, ' · '),
+    dot: formatDay(s.weddingDate, 'dot'),
     cn: formatDay(s.weddingDate),
   };
 }
+
+/** The wedding special's train number: R for the red line, then the date. */
+export const trainCode = (s: Settings) => `R${s.weddingDate.slice(5, 7)}${s.weddingDate.slice(8, 10)}`;
 
 const icsText = (value: string) => value.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/[,;]/g, (c) => `\\${c}`);
 const icsTime = (ms: number) => new Date(ms).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');

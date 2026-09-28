@@ -52,11 +52,11 @@ const MOMENTS: DemoMoment[] = [
     startsOn: '2020-05-20',
     endsOn: null,
     place: '杭州 · 白堤',
-    story: '你说“那就试试看吧”。\n那天的晚风很软，湖面把整个夕阳都装了进去。',
+    story: '你说“那就试试看吧”。\n试用期到现在也没结束。',
     coverPhotoId: null,
     visibility: 'public',
     photos: [
-      { art: 'lake', caption: '5 月 20 日，晴', note: '从这天起，“我”变成了“我们”。', takenAt: '2020-05-20T18:42:00', author: 'b', featured: true, favorite: true, color: '#e39a78' },
+      { art: 'lake', caption: '5 月 20 日，晴', note: '从这天起，两条线并成了一条。', takenAt: '2020-05-20T18:42:00', author: 'b', featured: true, favorite: true, color: '#e39a78' },
     ],
   },
   {
@@ -70,7 +70,7 @@ const MOMENTS: DemoMoment[] = [
     coverPhotoId: null,
     visibility: 'public',
     photos: [
-      { art: 'sea', caption: '海是蓝的，你是甜的', takenAt: '2020-10-03T17:55:00', author: 'a', featured: true, color: '#e7a07f' },
+      { art: 'sea', caption: '海风十级，发型全无', takenAt: '2020-10-03T17:55:00', author: 'a', featured: true, color: '#e7a07f' },
       { art: 'lighthouse', portrait: true, caption: '灯塔下面等日落', note: '那天你许的愿，到现在也没告诉我。', takenAt: '2020-10-03T18:30:00', author: 'b', color: '#6d7fa8' },
       { art: 'shell', caption: '捡到一颗心形的贝壳', takenAt: '2020-10-04T10:12:00', author: 'b', color: '#e8cfb5' },
       { art: 'sleep', caption: '回程的车上', note: '你靠着我睡了一路，我的肩膀麻了四个小时。', takenAt: '2020-10-05T15:05:00', author: 'a', visibility: 'private', color: '#9aa3b5' },
@@ -103,7 +103,7 @@ const MOMENTS: DemoMoment[] = [
     visibility: 'public',
     photos: [
       { art: 'mountain', caption: '离天空很近的地方', takenAt: '2022-01-23T11:00:00', author: 'a', color: '#7f9cc4' },
-      { art: 'stars', caption: '数不清的星星', note: '我在心里许了一个愿，和你有关。', takenAt: '2022-01-24T22:40:00', author: 'b', featured: true, color: '#2c3553' },
+      { art: 'stars', caption: '数不清的星星', note: '数到第 83 颗的时候，你睡着了。', takenAt: '2022-01-24T22:40:00', author: 'b', featured: true, color: '#2c3553' },
     ],
   },
   {
@@ -113,7 +113,7 @@ const MOMENTS: DemoMoment[] = [
     startsOn: '2023-02-13',
     endsOn: null,
     place: '上海',
-    story: '我们回到第一次约会的那家面馆，老板居然还记得我们。\n一千天，好像只是一眨眼。',
+    story: '我们回到第一次约会的那家面馆，老板居然还记得我们。\n他说：你俩吃面的样子，一点没变。',
     coverPhotoId: null,
     visibility: 'public',
     photos: [
@@ -152,8 +152,8 @@ const MOMENTS: DemoMoment[] = [
 ];
 
 const LOOSE: DemoPhoto[] = [
-  { art: 'flowers', caption: '路边的小花，送给你', takenAt: '2021-04-03T10:20:00', place: '杭州', author: 'a', color: '#e6a3b0' },
-  { art: 'umbrella', portrait: true, caption: '一把伞，两个人', takenAt: '2022-06-18T19:00:00', place: '上海', author: 'b', color: '#7d8fa3' },
+  { art: 'flowers', caption: '路边摘的，别告诉园丁', takenAt: '2021-04-03T10:20:00', place: '杭州', author: 'a', color: '#e6a3b0' },
+  { art: 'umbrella', portrait: true, caption: '伞是我的，雨是一起淋的', takenAt: '2022-06-18T19:00:00', place: '上海', author: 'b', color: '#7d8fa3' },
 ];
 
 export async function loadDemo() {

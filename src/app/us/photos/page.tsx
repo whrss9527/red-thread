@@ -46,7 +46,7 @@ export default async function PhotosPage({ searchParams }: Props) {
         <PhotoMasonry photos={cards} />
       ) : (
         <div className="empty">
-          <p className="hand">这里还空空的</p>
+          <p className="quip">这里还空空的</p>
         </div>
       )}
       {page > 1 || hasMore ? (

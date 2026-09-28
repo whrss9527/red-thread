@@ -34,7 +34,7 @@ export function MomentForm({
             </option>
           ))}
         </select>
-        <small>初遇 / 纪念日 / 里程碑会在红线上系成一颗心。</small>
+        <small>初遇 / 纪念日 / 里程碑会画成换乘站，站名旁边有一枚黄色标签。</small>
       </label>
       <label className="field">
         <span>地点</span>

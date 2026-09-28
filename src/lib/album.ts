@@ -36,7 +36,7 @@ export const loadPublicAlbum = cache(async (): Promise<PublicAlbum> => {
 
   const chapters: Chapter[] = moments.map((moment) => {
     const own = photos.filter((photo) => photo.momentId === moment.id).map((photo) => cardById.get(photo.id)!);
-    // The chosen cover leads the little pile of polaroids.
+    // The chosen cover leads the station's row of photos.
     const coverIndex = own.findIndex((card) => card.id === moment.coverPhotoId);
     if (coverIndex > 0) own.unshift(...own.splice(coverIndex, 1));
     return { moment, photos: own, sealed: sealedCounts.get(moment.id) ?? 0 };

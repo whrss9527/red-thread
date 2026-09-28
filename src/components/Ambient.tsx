@@ -1,8 +1,8 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
-import { zonedToEpoch } from '@/lib/dates';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { TIMEZONE, dayNumber, today, zonedToEpoch } from '@/lib/dates';
 import { Icon } from './Icon';
 
 /** Adds `.in` to every `[data-reveal]` element as it scrolls into view. */
@@ -33,6 +33,14 @@ export function RevealObserver() {
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
+const TIME_OF_DAY = new Intl.DateTimeFormat('en-GB', {
+  timeZone: TIMEZONE,
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+});
+
 const subscribeClock = (tick: () => void) => {
   const timer = window.setInterval(tick, 1000);
   return () => window.clearInterval(timer);
@@ -45,28 +53,25 @@ function useNow(): number | null {
   return useSyncExternalStore(subscribeClock, clockSnapshot, serverClock);
 }
 
-/** "在一起的第 N 天" with the seconds of today ticking along. */
+/** "本线已安全运行 N 天", with today's hours, minutes and seconds running on. */
 export function DaysCounter({ since, initialDay }: { since: string; initialDay: number }) {
   const now = useNow();
   let day = initialDay;
-  let clock = '00:00:00';
+  let clock = '';
   if (now !== null) {
-    const [y, m, d] = since.split('-').map(Number);
-    const start = new Date(y, m - 1, d).getTime();
-    const elapsed = Math.max(0, now - start);
-    day = Math.floor(elapsed / 86_400_000) + 1;
-    const rest = Math.floor((elapsed % 86_400_000) / 1000);
-    clock = `${pad(Math.floor(rest / 3600))}:${pad(Math.floor((rest % 3600) / 60))}:${pad(rest % 60)}`;
+    // Counted in the album's time zone, so it agrees with the server wherever the reader is.
+    day = dayNumber(since, today(TIMEZONE, new Date(now)));
+    clock = TIME_OF_DAY.format(now);
   }
   return (
     <div className="counter">
-      <p className="counter-label">这是我们在一起的第</p>
+      <p className="kicker">本线已安全运行</p>
       <p className="counter-number">
         <span suppressHydrationWarning>{day.toLocaleString('zh-CN')}</span>
         <small>天</small>
-      </p>
-      <p className="counter-clock" suppressHydrationWarning>
-        {now === null ? ' ' : `今天又一起走过了 ${clock}`}
+        <span className="counter-clock" suppressHydrationWarning>
+          {clock}
+        </span>
       </p>
     </div>
   );
@@ -89,14 +94,16 @@ export function WeddingCountdown({ date, time }: { date: string; time: string })
   const rest = Math.floor((diff % 86_400_000) / 1000);
   return (
     <p className="countdown">
-      距离婚礼还有 <b>{days}</b> 天 <span className="countdown-clock">
+      <span className="countdown-label">距离婚礼还有</span>
+      <b>{days}</b> 天
+      <span className="countdown-clock">
         {pad(Math.floor(rest / 3600))}:{pad(Math.floor((rest % 3600) / 60))}:{pad(rest % 60)}
       </span>
     </p>
   );
 }
 
-/** Background music; starts on the envelope's `rt:play` event or a tap. */
+/** Background music; starts on the ticket's `rt:play` event or a tap. */
 export function MusicPlayer({ src, autoplayInWeChat }: { src: string; autoplayInWeChat: boolean }) {
   const audio = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -139,73 +146,16 @@ export function MusicPlayer({ src, autoplayInWeChat }: { src: string; autoplayIn
           else el.pause();
         }}
       >
-        <span className="music-disc">
+        {playing ? (
+          <span className="music-bars" aria-hidden>
+            <i />
+            <i />
+            <i />
+          </span>
+        ) : (
           <Icon name="music" size={18} />
-        </span>
+        )}
       </button>
     </>
-  );
-}
-
-type Petal = { id: number; left: number; delay: number; duration: number; size: number; hue: string; sway: number; heart: boolean };
-const PETAL_COLORS = ['#f2b8bf', '#e98a95', '#f7d6d0', '#d9505c', '#f3cf9e', '#fbe3e6'];
-
-/** A handful of falling petals, fired by the `rt:petals` event. */
-export function Petals() {
-  const [petals, setPetals] = useState<Petal[]>([]);
-  useEffect(() => {
-    let timer = 0;
-    const fire = () => {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const count = window.innerWidth < 640 ? 22 : 36;
-      setPetals(
-        Array.from({ length: count }, (_, i) => ({
-          id: Date.now() + i,
-          left: Math.random() * 100,
-          delay: Math.random() * 2.6,
-          duration: 5 + Math.random() * 4,
-          size: 10 + Math.random() * 14,
-          hue: PETAL_COLORS[i % PETAL_COLORS.length],
-          sway: 20 + Math.random() * 60,
-          heart: i % 4 === 0,
-        })),
-      );
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => setPetals([]), 12_000);
-    };
-    window.addEventListener('rt:petals', fire);
-    return () => {
-      window.removeEventListener('rt:petals', fire);
-      window.clearTimeout(timer);
-    };
-  }, []);
-  if (petals.length === 0) return null;
-  return (
-    <div className="petals" aria-hidden>
-      {petals.map((p) => (
-        <span
-          key={p.id}
-          className="petal"
-          style={
-            {
-              left: `${p.left}%`,
-              '--delay': `${p.delay}s`,
-              '--dur': `${p.duration}s`,
-              '--size': `${p.size}px`,
-              '--sway': `${p.sway}px`,
-              color: p.hue,
-            } as CSSProperties
-          }
-        >
-          {p.heart ? (
-            <Icon name="heart" filled size={p.size} />
-          ) : (
-            <svg width={p.size} height={p.size} viewBox="0 0 20 20">
-              <path d="M10 1c4 4 6 8 0 18C4 9 6 5 10 1z" fill="currentColor" />
-            </svg>
-          )}
-        </span>
-      ))}
-    </div>
   );
 }

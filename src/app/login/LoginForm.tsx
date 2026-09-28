@@ -20,8 +20,8 @@ export function LoginForm({ next, hint }: { next: string; hint: string | null })
       {state.error ? <p className="notice notice-red">{state.error}</p> : null}
       {hint ? <p className="notice">{hint}</p> : null}
       <button type="submit" className="btn btn-red" disabled={pending}>
-        <Icon name="heart" size={17} filled />
-        {pending ? '正在开门…' : '回家'}
+        <Icon name="ticket" size={17} />
+        {pending ? '正在开闸…' : '刷卡进站'}
       </button>
     </form>
   );

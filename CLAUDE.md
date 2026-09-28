@@ -14,6 +14,19 @@ See README.md (Chinese).
 - `npm run typecheck`, `npm run lint`, `npm test` (node:test, `src/**/*.test.ts`), `npm run build`
 - `node scripts/demo-art.mjs` regenerates `public/demo/*.svg` (sample album illustrations)
 
+## Design
+
+- The album is drawn as a metro line: each of us is a line (`--blue`, `--yellow`) until the day they merge into the
+  red line (`--red`); moments are stations, the wedding is the next station, the invitation is a ticket. Keep new UI
+  and copy inside that picture, and keep the voice playful and plain (no 余生请多指教-style clichés).
+- Tokens live in `src/styles/base.css`. `--red` is for lines and large type only; small red text and red buttons use
+  `--red-ink` (contrast). `--card` stays white in dark mode: cards are paper objects on a dark table.
+- Type: 得意黑 Smiley Sans (`--display`, from `@chinese-fonts/dyh`, split by unicode range), Chivo Mono (`--mono`,
+  chosen for its plain zero — dates are everywhere), system sans for text. Headings get `--display` by default.
+- All stylesheets are global: grep for a class name before using it (`.stat` once collided with the admin).
+- Default copy that has shipped goes into `RETIRED_DEFAULTS` (`src/lib/settings.ts`) when it changes, so stored
+  settings that were never edited follow the new wording.
+
 ## Conventions
 
 - Pages that read the database export `dynamic = 'force-dynamic'` (Cache Components are not enabled).

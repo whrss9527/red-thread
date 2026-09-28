@@ -14,7 +14,7 @@ import {
 import type { PhotoCard } from '@/lib/types';
 import { formatTaken } from '@/lib/dates';
 import { Icon } from './Icon';
-import { blurStyle } from './Polaroid';
+import { Circled, blurStyle } from './Photo';
 
 type LightboxApi = { open: (photos: PhotoCard[], index?: number) => void };
 
@@ -47,7 +47,8 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
   );
 }
 
-type Burst = { id: number; x: number; y: number };
+/** Where a double tap circled the photo. */
+type Mark = { id: number; x: number; y: number };
 
 function Lightbox({
   photos,
@@ -62,7 +63,7 @@ function Lightbox({
 }) {
   const photo = photos[index];
   const [flipped, setFlipped] = useState(false);
-  const [bursts, setBursts] = useState<Burst[]>([]);
+  const [marks, setMarks] = useState<Mark[]>([]);
   const closeRef = useRef<HTMLButtonElement>(null);
   const swipe = useRef<{ x: number; y: number } | null>(null);
   const many = photos.length > 1;
@@ -109,14 +110,15 @@ function Lightbox({
     }
   }, [index, photos]);
 
-  const heart = (x: number, y: number) => {
+  const circle = (x: number, y: number) => {
     const id = Date.now() + Math.random();
-    setBursts((list) => [...list, { id, x, y }]);
-    window.setTimeout(() => setBursts((list) => list.filter((b) => b.id !== id)), 1100);
+    setMarks((list) => [...list, { id, x, y }]);
+    window.setTimeout(() => setMarks((list) => list.filter((m) => m.id !== id)), 1800);
   };
 
   const ratio = photo.width / photo.height;
   const meta = [formatTaken(photo.takenAt), photo.place, photo.author ? `by ${photo.author}` : null].filter(Boolean);
+  const count = (n: number) => String(n).padStart(2, '0');
 
   return (
     <div
@@ -141,7 +143,7 @@ function Lightbox({
       }}
     >
       <div className="lb-top">
-        <span className="lb-count">{many ? `${index + 1} / ${photos.length}` : ''}</span>
+        <span className="lb-count">{many ? `${count(index + 1)} / ${count(photos.length)}` : ''}</span>
         <button ref={closeRef} type="button" className="icon-btn" onClick={onClose} aria-label="关闭">
           <Icon name="close" />
         </button>
@@ -155,25 +157,21 @@ function Lightbox({
               style={blurStyle(photo)}
               onDoubleClick={(event) => {
                 const rect = event.currentTarget.getBoundingClientRect();
-                heart(event.clientX - rect.left, event.clientY - rect.top);
+                circle(event.clientX - rect.left, event.clientY - rect.top);
               }}
             >
               <img src={photo.src} alt={photo.caption ?? ''} draggable={false} />
-              {bursts.map((burst) => (
-                <span key={burst.id} className="burst" style={{ left: burst.x, top: burst.y }} aria-hidden>
-                  <Icon name="heart" filled size={56} className="burst-main" />
-                  {Array.from({ length: 8 }, (_, i) => (
-                    <span key={i} className="burst-bit" style={{ '--a': `${i * 45 + 20}deg` } as CSSProperties}>
-                      <Icon name="heart" filled size={14} />
-                    </span>
-                  ))}
+              {marks.map((mark) => (
+                <span key={mark.id} className="mark" style={{ left: mark.x, top: mark.y }} aria-hidden>
+                  <Circled seed={String(mark.id)} className="mark-loop" />
+                  <span className="mark-word">就这张！</span>
                 </span>
               ))}
             </div>
             <p className="lb-caption">{photo.caption}</p>
           </div>
           <div className="lb-face lb-back" aria-hidden={!flipped}>
-            <p className="lb-back-label">写在背面的话</p>
+            <p className="lb-back-label">背面写着</p>
             <p className="lb-note">{photo.note}</p>
             <p className="lb-back-foot">
               {photo.takenAt ? formatTaken(photo.takenAt).slice(0, 11) : ''}
@@ -197,7 +195,7 @@ function Lightbox({
               {flipped ? '翻回正面' : '翻到背面'}
             </button>
           ) : (
-            <span className="lb-tip">双击照片，送一颗心</span>
+            <span className="lb-tip">双击照片，用红笔圈出来</span>
           )}
           {many ? (
             <button type="button" className="icon-btn" onClick={() => go(1)} aria-label="下一张">

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   addDays,
   dayNumber,
+  formatDotRange,
   formatRange,
   isDay,
   monthGrid,
@@ -59,6 +60,12 @@ test('month grid starts on monday', () => {
 test('ranges collapse shared parts', () => {
   assert.equal(formatRange('2024-05-01', '2024-05-05'), '2024年5月1日 – 5日');
   assert.equal(formatRange('2024-04-30', '2024-05-02'), '2024年4月30日 – 5月2日');
+});
+
+test('station signs use the compact dotted range', () => {
+  assert.equal(formatDotRange('2020-10-02', null), '2020.10.02');
+  assert.equal(formatDotRange('2020-10-02', '2020-10-05'), '2020.10.02 – 10.05');
+  assert.equal(formatDotRange('2020-12-30', '2021-01-02'), '2020.12.30 – 2021.01.02');
 });
 
 test('wedding time converts from the album time zone', async () => {

@@ -4,6 +4,7 @@ import { requireSession } from '@/lib/auth';
 import { getSettings, partnerName } from '@/lib/settings';
 import { logout } from '@/app/login/actions';
 import { Icon } from '@/components/Icon';
+import { LineMark } from '@/components/Line';
 import { LightboxProvider } from '@/components/Lightbox';
 import { NavLinks } from '@/components/NavLinks';
 import { RevealObserver } from '@/components/Ambient';
@@ -19,7 +20,7 @@ export default async function UsLayout({ children }: { children: React.ReactNode
       <div className="us">
         <header className="us-bar">
           <Link href="/us" className="us-brand">
-            <Icon name="heart" size={18} filled />
+            <LineMark height={18} />
             我们的小窝
           </Link>
           <NavLinks

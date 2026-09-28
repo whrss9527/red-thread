@@ -1,22 +1,20 @@
 import type { Metadata } from 'next';
+import { Fragment } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import type { CSSProperties } from 'react';
 import { loadPublicAlbum } from '@/lib/album';
 import { getSession } from '@/lib/auth';
-import { dayNumber, formatDay, formatRange, isDay, today } from '@/lib/dates';
+import { dayNumber, formatDay, formatDotRange, isDay, today } from '@/lib/dates';
 import { MOMENT_KINDS } from '@/lib/moments';
 import { siteTitle } from '@/lib/settings';
 import { urlFor } from '@/lib/storage';
-import { seeded } from '@/lib/ui';
-import { weddingReady } from '@/lib/wedding';
-import { Icon, KIND_ICON } from '@/components/Icon';
+import { weddingDateParts, weddingReady } from '@/lib/wedding';
+import { Icon } from '@/components/Icon';
 import { LightboxProvider } from '@/components/Lightbox';
-import { Corkboard, HeroFan, PolaroidCluster } from '@/components/PhotoGroups';
+import { ContactSheet, ShapeCollage, StationPhotos } from '@/components/PhotoGroups';
 import { DaysCounter, MusicPlayer, RevealObserver } from '@/components/Ambient';
-import { RedThread } from '@/components/RedThread';
+import { HeroLines, LineTrack, StripMap, Terminus } from '@/components/Line';
 import { GuestbookForm } from '@/components/Guestbook';
-import { Bow, Stamp } from '@/components/Bits';
 import { InviteEntry } from '@/components/InviteCard';
 import { PublicNav } from '@/components/PublicNav';
 
@@ -37,9 +35,14 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const NOTE_COLORS = ['#fdf1c8', '#fbe0e0', '#e3efd9', '#e0e9f5', '#f3e2f0', '#fde6cf'];
+/** Moments that are a change of line rather than just another stop. */
+const TRANSFERS = new Set(['meet', 'anniversary', 'milestone']);
 
-/** The album: our story along the red thread, every photo we chose to share. */
+/**
+ * The album. Our days together drawn as a metro line: two lines merge into
+ * one red line, every public moment is a station on it, and everything we
+ * chose to share hangs off those stations.
+ */
 export default async function AlbumHome({ searchParams }: Props) {
   const [album, session, params] = await Promise.all([loadPublicAlbum(), getSession(), searchParams]);
   const { settings: s, chapters, loose, featured, stamps, blessings, stats } = album;
@@ -50,9 +53,28 @@ export default async function AlbumHome({ searchParams }: Props) {
   if (to && wedding) redirect(`/invitation?to=${encodeURIComponent(to)}`);
 
   const since = isDay(s.togetherSince) ? s.togetherSince : today();
+  const sinceDot = formatDay(since, 'dot');
+  const day = dayNumber(since, today());
   const music = s.music ? await urlFor(s.music, false) : null;
   const kindLabel = Object.fromEntries(MOMENT_KINDS.map((k) => [k.value, k.label]));
   const publicCount = chapters.reduce((sum, c) => sum + c.photos.length, 0) + loose.length;
+  const outtakes = loose.slice(0, 24);
+  const firstAfter = chapters.findIndex((chapter) => chapter.moment.startsOn >= since);
+  const mergeAt = firstAfter === -1 ? chapters.length : firstAfter;
+  const mergeStation = (
+    <div className="station merge-stop" data-reveal>
+      <span className="station-dot" data-stop />
+      <div className="station-text">
+        <p className="station-meta">
+          <span className="station-kind">并线</span>
+          <time>{sinceDot}</time>
+        </p>
+        <h3 className="station-title">
+          {s.partnerA}线 × {s.partnerB}线，在这里并成一条
+        </h3>
+      </div>
+    </div>
+  );
 
   return (
     <LightboxProvider>
@@ -60,135 +82,135 @@ export default async function AlbumHome({ searchParams }: Props) {
       <PublicNav settings={s} wedding={wedding} signedIn={Boolean(session)} active="home" />
 
       <header className="hero">
-        <p className="hero-kicker">Our Love Story</p>
-        <h1 className="hero-names">
-          <span>{s.partnerA}</span>
-          <span className="amp script">&amp;</span>
-          <span>{s.partnerB}</span>
-        </h1>
-        {s.tagline ? <p className="hero-tagline hand">{s.tagline}</p> : null}
-        {featured.length > 0 ? (
-          <HeroFan photos={featured} />
-        ) : (
-          <div className="fan-empty hand">这里会放上我们最喜欢的几张照片</div>
-        )}
-        <div className="hero-bottom">
-          <DaysCounter since={since} initialDay={dayNumber(since, today())} />
-          {wedding ? <InviteEntry settings={s} /> : null}
+        <div className="hero-main">
+          <div className="hero-copy">
+            <p className="kicker">红线 · 两人专线</p>
+            <h1 className="hero-names">
+              <span className="name-a">{s.partnerA}</span>
+              <span className="hero-amp" aria-label="和">
+                &amp;
+              </span>
+              <span className="name-b">{s.partnerB}</span>
+            </h1>
+            {s.tagline ? <p className="hero-tagline">{s.tagline}</p> : null}
+            {wedding ? <InviteEntry settings={s} /> : null}
+          </div>
+          {featured.length > 0 ? (
+            <ShapeCollage
+              photos={featured}
+              sticker={`本线已安全运行 ${day.toLocaleString('zh-CN')} 天 · SINCE ${sinceDot} · `}
+            />
+          ) : (
+            <p className="collage-empty quip">这里会放上我们最喜欢的几张照片</p>
+          )}
         </div>
-        <a href="#story" className="scroll-cue">
-          <span className="hand">顺着红线往下走</span>
-          <Icon name="down" size={18} />
-        </a>
+        <div className="hero-line">
+          <HeroLines a={s.partnerA} b={s.partnerB} since={sinceDot} />
+          <DaysCounter since={since} initialDay={day} />
+        </div>
       </header>
 
       <main>
-        <section className="story" id="story">
-          <RedThread />
-          <header className="story-intro" data-reveal>
-            <span className="knot knot-heart" data-knot>
-              <Icon name="heart" size={28} />
-            </span>
-            <div className="story-intro-text">
-              <p className="section-kicker">Our Story</p>
-              <h2 className="section-title">我们的故事</h2>
-              {s.intro ? <p>{s.intro}</p> : null}
-            </div>
-          </header>
+        <section className="section" id="story">
+          <div className="section-head" data-reveal>
+            <p className="kicker">Stations · 沿线站点</p>
+            <h2 className="section-title">一站一站，都下车看过</h2>
+            {s.intro ? <p className="section-sub">{s.intro}</p> : null}
+          </div>
 
-          {chapters.map(({ moment, photos, sealed }) => {
-            const special = moment.kind === 'meet' || moment.kind === 'anniversary' || moment.kind === 'milestone';
-            return (
-              <article
-                key={moment.id}
-                id={`m-${moment.id}`}
-                className={`chapter ${special ? 'milestone' : ''}`}
-                data-reveal
-              >
-                <span className={`knot ${special ? 'knot-heart' : ''}`} data-knot>
-                  {special ? <Icon name="heart" size={28} /> : null}
-                  <span className="knot-date">{formatDay(moment.startsOn, 'dot')}</span>
-                </span>
-                <div className="chapter-text">
-                  <span className="chapter-kind">
-                    <Icon name={KIND_ICON[moment.kind]} size={14} />
-                    {kindLabel[moment.kind]}
-                  </span>
-                  <h3 className="chapter-title">
-                    <Link href={`/moments/${moment.id}`}>{moment.title}</Link>
-                  </h3>
-                  <p className="chapter-meta">
-                    <span>
-                      <Icon name="calendar" size={14} />
-                      {formatRange(moment.startsOn, moment.endsOn)}
-                    </span>
-                    {moment.place ? (
-                      <span>
-                        <Icon name="pin" size={14} />
-                        {moment.place}
-                      </span>
-                    ) : null}
-                  </p>
-                  {moment.story ? <p className="chapter-story">{moment.story}</p> : null}
-                  {sealed > 0 ? (
-                    <p className="chapter-sealed">
-                      <Icon name="lock" size={15} />
-                      还有 {sealed} 张，只给彼此看
+          <div className="stations">
+            <LineTrack />
+            {chapters.map(({ moment, photos, sealed }, i) => (
+              <Fragment key={moment.id}>
+                {i === mergeAt ? mergeStation : null}
+                <article
+                  id={`m-${moment.id}`}
+                  className={`station ${TRANSFERS.has(moment.kind) ? 'transfer' : ''}`}
+                  data-reveal
+                >
+                  <span className="station-dot" data-stop />
+                  <div className="station-text">
+                    <p className="station-meta">
+                      <span className="station-no">{String(i + 1).padStart(2, '0')}</span>
+                      <span className="station-kind">{kindLabel[moment.kind]}</span>
+                      <time>{formatDotRange(moment.startsOn, moment.endsOn)}</time>
+                      {moment.place ? <span>{moment.place}</span> : null}
                     </p>
-                  ) : null}
-                  {photos.length > 0 ? (
-                    <Link href={`/moments/${moment.id}`} className="chapter-open">
-                      翻开这一页 · {photos.length} 张照片 <Icon name="right" size={14} />
-                    </Link>
-                  ) : null}
-                </div>
-                {photos.length > 0 ? (
-                  <div className="chapter-photos">
-                    <PolaroidCluster photos={photos} label={moment.title} />
+                    <h3 className="station-title">
+                      <Link href={`/moments/${moment.id}`}>{moment.title}</Link>
+                    </h3>
+                    {moment.story ? <p className="station-story">{moment.story}</p> : null}
+                    <p className="station-foot">
+                      {photos.length > 0 ? (
+                        <Link href={`/moments/${moment.id}`} className="go">
+                          进站看看 · {photos.length} 张 <Icon name="right" size={15} />
+                        </Link>
+                      ) : null}
+                      {sealed > 0 ? (
+                        <span className="sealed">
+                          <Icon name="lock" size={13} /> 另有 {sealed} 张，仅限两位乘客
+                        </span>
+                      ) : null}
+                    </p>
                   </div>
-                ) : null}
-              </article>
-            );
-          })}
+                  {photos.length > 0 ? <StationPhotos photos={photos} label={moment.title} /> : null}
+                </article>
+              </Fragment>
+            ))}
+            {mergeAt === chapters.length ? mergeStation : null}
 
-          <div className="story-end" data-reveal>
-            <span className="knot knot-heart" data-knot>
-              <Icon name="heart" size={28} />
-            </span>
-            <div className="story-end-text">
-              {chapters.length === 0 ? (
-                <p className="hand">故事才刚刚开始写呢</p>
-              ) : wedding ? (
-                <>
-                  <p className="hand">下一个结，想请你一起来系</p>
-                  <Link href="/invitation" className="btn btn-red">
-                    <Icon name="envelope" size={18} /> 打开婚礼请柬
-                  </Link>
-                </>
-              ) : (
-                <p className="hand">未完，待续……</p>
-              )}
+            <div className="station terminal" data-reveal>
+              <span className="station-dot" data-stop />
+              <div className="station-text">
+                {wedding ? (
+                  <>
+                    <p className="station-meta">
+                      <span className="station-kind soon">即将开通</span>
+                      <time>{weddingDateParts(s).dot}</time>
+                    </p>
+                    <h3 className="station-title">下一站：婚礼</h3>
+                    <p className="station-story">这一站，想请你一起来。</p>
+                    <p className="station-foot">
+                      <Link href="/invitation" className="btn btn-red">
+                        看看请柬 <Icon name="right" size={16} />
+                      </Link>
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="station-meta">
+                      <span className="station-kind soon">列车运行中</span>
+                    </p>
+                    <h3 className="station-title">{chapters.length === 0 ? '首班车，马上发车' : '下一站，还没想好'}</h3>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </section>
 
-        {loose.length > 0 ? (
-          <section className="section">
+        {outtakes.length > 0 ? (
+          <section className="section" id="outtakes">
             <div className="section-head" data-reveal>
-              <p className="section-kicker">Little Things</p>
-              <h2 className="section-title">零零碎碎的日常</h2>
-              <p className="section-sub">没有被写进章节的那些瞬间，也一样重要。</p>
+              <p className="kicker">Outtakes · 花絮</p>
+              <h2 className="section-title">没进正片的</h2>
+              <p className="section-sub">
+                没写进任何一站，但一张也舍不得删。
+                {outtakes.some((photo) => photo.note) ? '红笔圈出来的，背面写了字。' : ''}
+              </p>
             </div>
             <div data-reveal>
-              <Corkboard photos={loose} />
+              <ContactSheet photos={outtakes} />
             </div>
           </section>
         ) : null}
 
         {publicCount > 0 ? (
-          <div className="album-cta" data-reveal>
-            <Link href="/photos" className="btn">
-              <Icon name="image" size={17} /> 按时间看全部 {publicCount} 张照片
+          <div className="all-photos" data-reveal>
+            <Link href="/photos" className="all-photos-link">
+              <span className="all-photos-num">{publicCount.toLocaleString('zh-CN')}</span>
+              <span className="all-photos-text">张照片，按时间一张张看</span>
+              <Icon name="right" size={30} />
             </Link>
           </div>
         ) : null}
@@ -196,110 +218,113 @@ export default async function AlbumHome({ searchParams }: Props) {
         {stamps.length > 0 ? (
           <section className="section" id="places">
             <div className="section-head" data-reveal>
-              <p className="section-kicker">Places</p>
+              <p className="kicker">Route map · 途经</p>
               <h2 className="section-title">一起去过的地方</h2>
-              <p className="section-sub">每一枚邮戳，都是一段一起出发的路。</p>
+              <p className="section-sub">按第一次到达的顺序排好，一共 {stamps.length} 站。</p>
             </div>
-            <div className="stamps" data-reveal>
-              {stamps.map((stamp) => (
-                <Stamp
-                  key={stamp.place}
-                  place={stamp.place}
-                  date={stamp.day ? formatDay(stamp.day, 'dot').slice(0, 7) : '♡'}
-                  thumb={stamp.thumb}
-                />
-              ))}
+            <div data-reveal>
+              <StripMap stops={stamps.map((stamp) => ({ place: stamp.place, year: stamp.day?.slice(0, 4) ?? null }))} />
             </div>
           </section>
         ) : null}
 
-        <section className="section">
+        <section className="section" id="numbers">
           <div className="section-head" data-reveal>
-            <p className="section-kicker">In Numbers</p>
-            <h2 className="section-title">我们的数字</h2>
+            <p className="kicker">Operations · 运营数据</p>
+            <h2 className="section-title">本线运营数据</h2>
           </div>
-          <div className="numbers" data-reveal>
-            <div className="number">
-              <b>{stats.days.toLocaleString('zh-CN')}</b>
-              <span>天，在一起</span>
+          <dl className="ops" data-reveal>
+            <div className="op op-red">
+              <dt>安全运行</dt>
+              <dd>
+                {stats.days.toLocaleString('zh-CN')}
+                <small>天</small>
+              </dd>
             </div>
-            <div className="number">
-              <b>{stats.weekends.toLocaleString('zh-CN')}</b>
-              <span>个周末，一起过</span>
+            <div className="op">
+              <dt>一起过的周末</dt>
+              <dd>
+                {stats.weekends.toLocaleString('zh-CN')}
+                <small>个</small>
+              </dd>
             </div>
             {stats.places > 0 ? (
-              <div className="number">
-                <b>{stats.places}</b>
-                <span>个地方，一起去过</span>
+              <div className="op">
+                <dt>途经站点</dt>
+                <dd>
+                  {stats.places}
+                  <small>站</small>
+                </dd>
               </div>
             ) : null}
             {stats.photos > 0 ? (
-              <div className="number">
-                <b>{stats.photos.toLocaleString('zh-CN')}</b>
-                <span>{stats.hidden > 0 ? `张照片，${stats.hidden} 张悄悄藏着` : '张照片，都在这里'}</span>
+              <div className="op">
+                <dt>拍下的照片</dt>
+                <dd>
+                  {stats.photos.toLocaleString('zh-CN')}
+                  <small>张</small>
+                </dd>
+                <p>{stats.hidden > 0 ? `其中 ${stats.hidden} 张不对外开放` : '全部对外开放'}</p>
               </div>
             ) : null}
             {stats.valentines > 0 ? (
-              <div className="number">
-                <b>{stats.valentines}</b>
-                <span>个情人节，都是你</span>
+              <div className="op">
+                <dt>情人节</dt>
+                <dd>
+                  {stats.valentines}
+                  <small>个</small>
+                </dd>
+                <p>全部准点</p>
               </div>
             ) : null}
-          </div>
+            <div className="op op-blue">
+              <dt>剩余里程</dt>
+              <dd>∞</dd>
+              <p>本线路不设终点</p>
+            </div>
+          </dl>
         </section>
 
         <section className="section" id="guestbook">
           <div className="section-head" data-reveal>
-            <p className="section-kicker">Guestbook</p>
-            <h2 className="section-title">写给我们</h2>
-            <p className="section-sub">留一句话给我们，我们会好好收着。</p>
+            <p className="kicker">Messages · 留言</p>
+            <h2 className="section-title">路过，请留言</h2>
+            <p className="section-sub">
+              写一句话给我们。{s.autoApproveNotes ? '' : '我们读过之后，会把它贴在这里。'}
+            </p>
           </div>
-          <div className="gb-paper" data-reveal>
-            <GuestbookForm rsvp={false} deadline={null} />
-          </div>
-          {blessings.length > 0 ? (
-            <div className="wall">
-              {blessings.map((note) => (
-                <article
-                  key={note.id}
-                  className="note"
-                  data-reveal
-                  style={
-                    {
-                      '--tilt': `${(seeded(note.id) - 0.5) * 6}deg`,
-                      '--note': NOTE_COLORS[Math.floor(seeded(note.id, 2) * NOTE_COLORS.length)],
-                    } as CSSProperties
-                  }
-                >
-                  <span className="tape" />
-                  <p>{note.message}</p>
-                  <footer>— {note.name}</footer>
-                </article>
-              ))}
+          <div className="gb" data-reveal>
+            <div className="gb-card">
+              <GuestbookForm rsvp={false} deadline={null} />
             </div>
-          ) : (
-            <p className="wall-empty">第一个写下留言的人，会被我们记很久很久。</p>
-          )}
+            {blessings.length > 0 ? (
+              <div className="notes">
+                {blessings.map((note, i) => (
+                  <article key={note.id} className={`note note-${i % 4}`}>
+                    <p>{note.message}</p>
+                    <footer>{note.name}</footer>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="notes-empty quip">第一条留言的位置，给你留着。</p>
+            )}
+          </div>
         </section>
       </main>
 
-      <footer className="closing">
-        <Bow />
-        <p className="closing-line">{s.closingLine}</p>
-        <p className="closing-names">
-          {s.partnerA} &amp; {s.partnerB}
-        </p>
-        <p className="closing-since">SINCE {formatDay(since, 'dot')}</p>
-        <p className="closing-fine">
+      <footer className="terminus">
+        <Terminus line={s.closingLine} sub={`${s.partnerA} & ${s.partnerB} 联合运营 · SINCE ${sinceDot}`} />
+        <p className="terminus-fine">
           {wedding ? (
             <>
               <Link href="/invitation">婚礼请柬</Link>
-              {' · '}
+              <span aria-hidden>·</span>
             </>
           ) : null}
-          <Link href="/login" aria-label="我们的入口">
-            ♡
-          </Link>
+          <Link href="/photos">全部照片</Link>
+          <span aria-hidden>·</span>
+          <Link href="/login">员工通道</Link>
         </p>
       </footer>
 

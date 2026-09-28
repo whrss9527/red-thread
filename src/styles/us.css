@@ -1,47 +1,66 @@
-/* ================================================================== login */
+/* ================================================= login, errors, 404 */
+/* The staff entrance: a card sitting on the red line. */
 .login {
-  min-height: 100dvh;
+  position: relative;
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 18px;
+  gap: 20px;
+  min-height: 100dvh;
   padding: 24px 16px;
-  background:
-    radial-gradient(circle at 20% 15%, color-mix(in srgb, var(--red-soft) 70%, transparent), transparent 40%),
-    radial-gradient(circle at 80% 85%, color-mix(in srgb, var(--gold-soft) 80%, transparent), transparent 45%);
+  overflow: hidden;
+}
+
+.login::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 14px;
+  margin-top: -7px;
+  background: var(--red);
 }
 
 .login-card {
-  width: min(100%, 400px);
+  --paper: #fff;
+  position: relative;
   display: grid;
   gap: 12px;
-  padding: 36px 28px 30px;
-  background: var(--card);
-  color: var(--card-ink);
-  border-radius: 6px;
-  box-shadow: var(--shadow-lg);
-  text-align: center;
+  width: min(100%, 420px);
+  padding: 30px 28px 28px;
+  border: 2px solid #171614;
+  border-radius: var(--radius);
+  background: #fff;
+  color: #171614;
+  box-shadow: 8px 8px 0 #171614;
 }
 
 .login-card .muted {
-  color: #6d5c53;
+  color: #57534d;
+}
+
+.login-card .faint {
+  color: #736e67;
+}
+
+.login-card .kicker {
+  color: #57534d;
 }
 
 .login-title {
-  font-family: var(--serif-cn);
-  font-size: 1.6rem;
-  letter-spacing: 0.1em;
+  font-size: clamp(2rem, 6vw, 2.6rem);
+  line-height: 1.1;
 }
 
 .login-form {
   display: grid;
   gap: 14px;
-  margin-top: 10px;
-  text-align: left;
+  margin-top: 8px;
 }
 
 .login-form .field > span {
-  color: #6d5c53;
+  color: #57534d;
 }
 
 .login-form .btn {
@@ -50,9 +69,36 @@
 }
 
 .login-back {
+  position: relative;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--paper);
   color: var(--ink-2);
   font-size: 0.9rem;
+  font-weight: 600;
   text-decoration: none;
+}
+
+.login-back:hover {
+  color: var(--red-ink);
+}
+
+.setup-list {
+  color: #171614;
+}
+
+.setup-list ol {
+  display: grid;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding-left: 1.3em;
+}
+
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
 }
 
 /* ============================================================= us layout */
@@ -67,21 +113,20 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: max(8px, env(safe-area-inset-top)) 16px 8px;
+  padding: max(10px, env(safe-area-inset-top)) max(16px, calc((100% - 1120px) / 2)) 10px;
   background: color-mix(in srgb, var(--paper) 88%, transparent);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
 
 .us-brand {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  color: var(--red);
-  font-family: var(--serif-cn);
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  gap: 10px;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  line-height: 1;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -98,21 +143,23 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 7px 12px;
   border-radius: 999px;
   color: var(--ink-2);
-  text-decoration: none;
   font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
   white-space: nowrap;
 }
 
 .us-nav a:hover {
+  color: var(--ink);
   background: var(--paper-2);
 }
 
 .us-nav a.active {
-  background: var(--red);
-  color: #fff;
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .us-me {
@@ -123,7 +170,7 @@
 .us-main {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 28px 16px 80px;
+  padding: 28px 16px 96px;
 }
 
 @media (max-width: 760px) {
@@ -139,16 +186,16 @@
   }
   .us-nav {
     order: 3;
+    justify-content: space-between;
     width: 100%;
     margin: 0;
-    justify-content: space-between;
   }
   .us-nav a {
     flex-direction: column;
     gap: 0;
     padding: 4px 8px;
-    font-size: 0.72rem;
     border-radius: 10px;
+    font-size: 0.72rem;
   }
   .hide-sm {
     display: none;
@@ -159,40 +206,30 @@
   font-size: 0.85rem;
 }
 
-.back-link {
-  display: inline-block;
-  margin-bottom: 14px;
-  text-decoration: none;
+.us .page-head {
+  margin-top: 0;
 }
 
-.page-head {
-  margin-bottom: 22px;
-}
-
-.page-head h1 {
-  font-family: var(--serif-cn);
-  font-size: clamp(1.5rem, 4vw, 2rem);
-  letter-spacing: 0.08em;
+.us .page-head h1 {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
 }
 
 /* ================================================================ welcome */
 .welcome {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: 22px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 24px;
   align-items: center;
-  padding: clamp(22px, 4vw, 36px);
-  border-radius: 20px;
-  background:
-    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--red-soft) 80%, transparent), transparent 55%),
-    radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--gold-soft) 80%, transparent), transparent 50%),
-    var(--card);
-  color: var(--card-ink);
-  box-shadow: var(--shadow);
+  padding: clamp(22px, 4vw, 38px);
+  border: 2px solid #171614;
+  border-radius: var(--radius);
+  background: #fff;
+  color: #171614;
+  box-shadow: 6px 6px 0 var(--yellow);
 }
 
 .welcome .muted {
-  color: #6d5c53;
+  color: #57534d;
 }
 
 @media (max-width: 760px) {
@@ -203,27 +240,29 @@
 
 .welcome-text {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .welcome-hi {
-  font-size: 1.7rem;
-  color: var(--red);
+  font-size: 1.5rem;
   line-height: 1.2;
+  color: #d02c1d;
 }
 
 .welcome-day {
-  font-family: var(--serif-cn);
-  font-size: clamp(1.3rem, 3.6vw, 1.8rem);
-  font-weight: 400;
-  letter-spacing: 0.04em;
+  font-family: var(--sans);
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .welcome-day b {
-  font-family: var(--serif);
-  font-size: 1.7em;
-  color: var(--red);
-  padding: 0 0.1em;
+  padding: 0 0.08em;
+  font-family: var(--display);
+  font-size: 2.2em;
+  font-weight: 400;
+  line-height: 1;
+  color: #f2402f;
 }
 
 .welcome-actions {
@@ -233,51 +272,52 @@
   margin-top: 6px;
 }
 
+/* Next stops: upcoming anniversaries, as a departures list. */
 .milestones {
-  list-style: none;
+  display: grid;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 10px;
+  border-top: 2px solid #171614;
+  list-style: none;
 }
 
 .milestones li {
   display: grid;
-  grid-template-columns: 76px 1fr;
+  grid-template-columns: 84px 1fr;
   grid-template-rows: auto auto;
   column-gap: 12px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(74, 52, 40, 0.1);
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(23, 22, 20, 0.2);
 }
 
 .milestone-in {
   grid-row: 1 / 3;
   align-self: center;
   font-size: 0.8rem;
-  color: #6d5c53;
+  color: #57534d;
 }
 
 .milestone-in b {
-  font-family: var(--serif);
-  font-size: 1.7rem;
-  color: var(--red);
+  font-family: var(--display);
+  font-size: 1.9rem;
+  font-weight: 400;
+  color: #f2402f;
 }
 
 .milestone-label {
-  font-family: var(--serif-cn);
-  font-weight: 600;
+  font-family: var(--display);
+  font-size: 1.15rem;
 }
 
 .milestone-day {
-  font-size: 0.8rem;
-  color: #8c776a;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: #736e67;
 }
 
 /* ============================================================= sections */
 .us-section {
-  margin-top: clamp(36px, 6vw, 56px);
+  margin-top: clamp(40px, 6vw, 64px);
 }
 
 .us-section-head {
@@ -286,43 +326,43 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 8px 16px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .us-section-head h2 {
-  font-family: var(--serif-cn);
-  font-size: 1.35rem;
-  letter-spacing: 0.08em;
+  font-size: clamp(1.7rem, 3.4vw, 2.3rem);
 }
 
 .us-section-head .muted {
-  font-size: 0.88rem;
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  font-size: 0.88rem;
   text-decoration: none;
 }
 
 .otd + .otd {
-  margin-top: 18px;
+  margin-top: 22px;
 }
 
 .otd-label {
-  font-size: 1.4rem;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
+  font-size: 1.3rem;
 }
 
-.strip {
+/* A row of photos at one height, scrolling sideways. */
+.pstrip {
   display: flex;
-  gap: 18px;
+  gap: 12px;
+  padding: 4px 2px 12px;
   overflow-x: auto;
-  padding: 18px 6px 22px;
   scroll-snap-type: x proximity;
   scrollbar-width: thin;
 }
 
-.strip-card {
-  flex: 0 0 min(52vw, 210px);
+.pstrip-item {
+  flex: none;
+  height: clamp(170px, 28vw, 240px);
   scroll-snap-align: start;
 }
 
@@ -333,24 +373,30 @@
 }
 
 .chip {
-  padding: 4px 12px;
+  padding: 5px 13px;
+  border: 1.5px solid var(--line-strong);
   border-radius: 999px;
-  border: 1px solid var(--line-strong);
   color: var(--ink-2);
-  text-decoration: none;
   font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.chip:hover {
+  border-color: var(--ink);
+  color: var(--ink);
 }
 
 .chip.active {
-  background: var(--ink);
   border-color: var(--ink);
+  background: var(--ink);
   color: var(--paper);
 }
 
 .pager {
   display: flex;
   justify-content: space-between;
-  margin-top: 26px;
+  margin-top: 28px;
 }
 
 /* =============================================================== calendar */
@@ -358,7 +404,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 220px;
   grid-template-areas: 'top top' 'cal index';
-  gap: 18px 28px;
+  gap: 20px 28px;
 }
 
 @media (max-width: 860px) {
@@ -379,17 +425,16 @@
 .cal-title {
   display: grid;
   justify-items: center;
-  font-family: var(--serif-cn);
-  font-size: clamp(1.4rem, 4vw, 1.9rem);
-  letter-spacing: 0.1em;
+  gap: 4px;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1;
 }
 
 .cal-title small {
-  font-family: var(--sans);
-  font-size: 0.8rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
 }
 
 .cal {
@@ -400,20 +445,21 @@
 }
 
 .cal-head {
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--ink-3);
   padding-bottom: 2px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink-3);
+  text-align: center;
 }
 
 .cal-cell {
   position: relative;
   aspect-ratio: 1;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: color-mix(in srgb, var(--card) 55%, transparent);
   padding: 0;
   overflow: hidden;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--card) 50%, transparent);
   color: var(--ink-2);
   text-align: left;
 }
@@ -427,13 +473,12 @@
   border: 0;
   color: #fff;
   cursor: zoom-in;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.25s var(--ease);
+  transition: transform 0.25s var(--spring);
 }
 
 .cal-cell.has-photo:hover {
-  transform: scale(1.05);
   z-index: 2;
+  transform: scale(1.06);
 }
 
 .cal-img {
@@ -458,7 +503,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 45%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.38), transparent 45%);
 }
 
 .cal-num {
@@ -466,9 +511,9 @@
   top: 4px;
   left: 7px;
   z-index: 1;
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: clamp(0.85rem, 2.4vw, 1.1rem);
+  font-family: var(--mono);
+  font-size: clamp(0.78rem, 2.2vw, 1rem);
+  font-weight: 500;
 }
 
 .cal-count {
@@ -476,10 +521,11 @@
   top: 5px;
   right: 6px;
   z-index: 1;
-  font-size: 0.68rem;
   padding: 0 5px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.5);
+  font-family: var(--mono);
+  font-size: 0.68rem;
 }
 
 .cal-mark {
@@ -493,16 +539,17 @@
   justify-content: center;
   gap: 2px;
   padding: 1px 3px;
+  overflow: hidden;
   border-radius: 6px;
-  background: var(--red);
+  background: var(--red-ink);
   color: #fff;
   font-size: clamp(0.55rem, 1.6vw, 0.72rem);
+  font-weight: 700;
   white-space: nowrap;
-  overflow: hidden;
 }
 
 .cal-cell.today {
-  outline: 2px solid var(--red);
+  outline: 2.5px solid var(--red);
   outline-offset: 1px;
 }
 
@@ -510,13 +557,11 @@
   grid-area: index;
   display: grid;
   align-content: start;
-  gap: 12px;
+  gap: 14px;
 }
 
 .cal-index h2 {
-  font-family: var(--serif-cn);
-  font-size: 1rem;
-  letter-spacing: 0.1em;
+  font-size: 1.4rem;
 }
 
 .cal-year {
@@ -525,8 +570,8 @@
 }
 
 .cal-year-label {
-  font-family: var(--serif);
-  font-weight: 600;
+  font-family: var(--mono);
+  font-weight: 500;
   color: var(--ink-2);
 }
 
@@ -540,60 +585,51 @@
   display: inline-flex;
   align-items: baseline;
   gap: 3px;
-  padding: 2px 9px;
+  padding: 2px 10px;
+  border: 1.5px solid var(--line-strong);
   border-radius: 999px;
-  border: 1px solid var(--line);
   font-size: 0.85rem;
+  font-weight: 600;
   text-decoration: none;
 }
 
 .cal-months a small {
-  color: var(--ink-3);
+  font-family: var(--mono);
   font-size: 0.7rem;
+  color: var(--ink-3);
 }
 
 .cal-months a.active {
-  background: var(--red);
-  color: #fff;
-  border-color: var(--red);
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .cal-months a.active small {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--paper-3);
 }
 
 /* ================================================================ moments */
 .moment-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
-  gap: 26px 20px;
+  gap: 28px 20px;
 }
 
 .moment-card {
-  --tilt: 0deg;
   display: grid;
-  gap: 0;
-  padding: 10px 10px 14px;
-  background: var(--card);
-  color: var(--card-ink);
+  gap: 12px;
+  color: var(--ink);
   text-decoration: none;
-  box-shadow: var(--shadow);
-  rotate: var(--tilt);
-  transition: transform 0.4s var(--ease), rotate 0.4s var(--ease), box-shadow 0.4s var(--ease);
-}
-
-.moment-card:hover {
-  rotate: 0deg;
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
 }
 
 .moment-cover {
   position: relative;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
   display: grid;
   place-items: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
   background: var(--paper-3);
   color: var(--red);
 }
@@ -602,6 +638,11 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.6s var(--ease);
+}
+
+.moment-card:hover .moment-cover img {
+  transform: scale(1.05);
 }
 
 .moment-cover .lock-badge {
@@ -611,58 +652,53 @@
 
 .moment-body {
   display: grid;
-  gap: 4px;
-  padding: 12px 4px 0;
+  justify-items: start;
+  gap: 6px;
 }
 
 .moment-body strong {
-  font-family: var(--serif-cn);
-  font-size: 1.1rem;
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.moment-card:hover strong {
+  background: linear-gradient(var(--yellow), var(--yellow)) 0 88% / 100% 0.3em no-repeat;
 }
 
 .moment-body .muted {
-  color: #6d5c53;
-}
-
-.moment-body .faint {
-  color: #a08f84;
+  font-family: var(--mono);
+  font-size: 0.78rem;
 }
 
 .moment-head {
   display: grid;
-  gap: 10px;
-  max-width: 720px;
-  margin-bottom: 28px;
+  justify-items: start;
+  gap: 12px;
+  max-width: 760px;
+  margin-bottom: 32px;
 }
 
 .moment-head h1 {
-  font-family: var(--serif-cn);
-  font-size: clamp(1.6rem, 5vw, 2.3rem);
-  letter-spacing: 0.06em;
+  font-size: clamp(2.4rem, 6vw, 3.8rem);
+  line-height: 1.05;
+}
+
+.moment-meta {
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+
+.moment-story {
+  color: var(--ink-2);
+  white-space: pre-line;
 }
 
 .moment-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-}
-
-.setup-list {
-  text-align: left;
-  color: var(--card-ink);
-}
-
-.setup-list ol {
-  margin: 6px 0 0;
-  padding-left: 1.3em;
-  display: grid;
-  gap: 4px;
-}
-
-.error-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 6px;
 }

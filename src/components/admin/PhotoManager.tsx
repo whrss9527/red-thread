@@ -6,7 +6,7 @@ import { useState, useTransition } from 'react';
 import { bulkPhotos, type BulkOp } from '@/app/admin/actions';
 import { formatTaken } from '@/lib/dates';
 import { Icon } from '@/components/Icon';
-import { FadeImg, blurStyle } from '@/components/Polaroid';
+import { FadeImg, blurStyle } from '@/components/Photo';
 import type { PhotoCard, Visibility } from '@/lib/types';
 
 export type AdminPhoto = PhotoCard & {
